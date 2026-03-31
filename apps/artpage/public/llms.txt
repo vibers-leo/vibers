@@ -1,0 +1,22 @@
+# 모노페이지 (Monopage)
+
+> 갤러리, 아티스트, 큐레이터를 위한 올인원 웹사이트 빌더
+
+## 주요 기능
+- 아티스트 개인 페이지 무료 생성
+- 작품 갤러리 및 전시 관리
+- 작품 판매 기능
+- 다국어 지원 (한/영)
+- Art Hyun, Artway Gallery 등 실제 갤러리 운영 중
+
+## 대상 사용자
+갤러리 운영자, 독립 아티스트, 큐레이터
+
+## 기술 스택
+Next.js, TypeScript, Firebase, NCP 이미지 서버
+
+## 운영사
+계발자들 (Vibers) — vibers.co.kr
+
+## 도메인
+https://monopage.kr

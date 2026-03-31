@@ -1,0 +1,10 @@
+{
+  "name": "@vibers/config",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./index.ts",
+  "files": [
+    "tsconfig.base.json",
+    "eslint.config.js"
+  ]
+}

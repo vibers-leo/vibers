@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mission7 — RPG Quest Design Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css">
+  <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            m7: {
+              void: '#06060e',
+              deep: '#0a0a18',
+              panel: '#0e0e1e',
+              surface: '#14142a',
+              border: 'rgba(120,140,255,0.08)',
+              glow: 'rgba(120,180,255,0.12)',
+              accent: '#60a5fa',
+              gold: '#fbbf24',
+              xp: '#a78bfa',
+              hp: '#f87171',
+              quest: '#34d399',
+              legendary: '#f59e0b',
+              dim: '#4b5580',
+              text: '#c8cee0',
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { background: #06060e; }
+
+    .noise-overlay {
+      position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(1.5rem); filter: blur(4px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(10px, -15px) scale(1.05); }
+      66% { transform: translate(-8px, -8px) scale(0.95); }
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.6; }
+    }
+    @keyframes questArrive {
+      0% { opacity: 0; transform: translateX(40px) scale(0.9); filter: blur(6px); }
+      60% { opacity: 1; transform: translateX(-4px) scale(1.02); filter: blur(0); }
+      100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+    }
+    @keyframes slotActivate {
+      0% { transform: scale(0); opacity: 0; box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+      50% { transform: scale(1.3); box-shadow: 0 0 20px 4px rgba(96,165,250,0.4); }
+      100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px 2px rgba(96,165,250,0.15); }
+    }
+    @keyframes xpFill {
+      from { width: 0%; }
+      to { width: var(--xp-width); }
+    }
+    @keyframes holoShimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes rankUp {
+      0% { transform: scale(0.5) rotate(-10deg); opacity: 0; filter: blur(10px); }
+      50% { transform: scale(1.2) rotate(2deg); opacity: 1; filter: blur(0); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes particleRise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-80px) scale(0); opacity: 0; }
+    }
+    @keyframes glitchFlicker {
+      0%, 90%, 100% { opacity: 1; }
+      92% { opacity: 0.8; transform: translateX(2px); }
+      94% { opacity: 0.6; transform: translateX(-2px); }
+      96% { opacity: 0.9; transform: translateX(1px); }
+    }
+
+    .animate-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .quest-arrive { animation: questArrive 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .slot-activate { animation: slotActivate 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .holo-text {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa, #60a5fa, #34d399, #60a5fa);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: holoShimmer 4s linear infinite;
+    }
+
+    .quest-card {
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .quest-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, transparent, var(--quest-color), transparent);
+      border-radius: 2px;
+    }
+    .quest-card:active { transform: scale(0.97); }
+
+    .glass-nav {
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+    }
+
+    .screen-frame {
+      width: 375px; height: 812px; border-radius: 2.5rem;
+      border: 1.5px solid rgba(120,140,255,0.1);
+      box-shadow: 0 0 60px -12px rgba(96,165,250,0.1), 0 25px 80px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(120,180,255,0.05);
+      overflow: hidden; position: relative;
+    }
+
+    .rune-border {
+      border: 1px solid transparent;
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      background-image: linear-gradient(#0e0e1e, #0e0e1e), linear-gradient(135deg, rgba(96,165,250,0.2), transparent, rgba(167,139,250,0.2));
+    }
+  </style>
+</head>
+<body class="font-sans text-m7-text min-h-[100dvh] antialiased">
+  <div class="noise-overlay"></div>
+
+  <!-- Page Header -->
+  <header class="relative z-10 pt-16 pb-8 px-6 max-w-7xl mx-auto">
+    <div class="animate-in">
+      <span class="inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-m7-accent/10 text-m7-accent mb-6 ring-1 ring-m7-accent/20">
+        RPG Quest UI
+      </span>
+      <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-tight break-keep-all text-white mb-4">
+        Mission<span class="holo-text">7</span>
+      </h1>
+      <p class="text-lg text-m7-dim max-w-[55ch] leading-relaxed break-keep-all">
+        하루 7미션, 반드시 성공합니다. 매일 아침 퀘스트가 도착하고, 클리어할 때마다 당신은 레벨업합니다.
+      </p>
+    </div>
+  </header>
+
+  <main class="relative z-10 px-6 max-w-7xl mx-auto pb-32">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+
+      <!-- ============================================ -->
+      <!-- Screen 1: 메인 — 오늘의 퀘스트 보드 -->
+      <!-- ============================================ -->
+      <div class="animate-in" style="animation-delay: 100ms">
+        <p class="text-sm text-m7-dim mb-4 uppercase tracking-wider">01 — 오늘의 퀘스트</p>
+        <div class="screen-frame bg-m7-void mx-auto">
+
+          <!-- Ambient Orbs -->
+          <div class="absolute top-20 right-10 w-40 h-40 rounded-full opacity-30 pointer-events-none" style="background: radial-gradient(circle, rgba(96,165,250,0.15), transparent 70%); animation: orbFloat 8s ease-in-out infinite"></div>
+          <div class="absolute bottom-40 left-5 w-32 h-32 rounded-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%); animation: orbFloat 10s ease-in-out infinite 2s"></div>
+
+          <!-- Status Bar -->
+          <div class="relative z-10 flex justify-between items-center px-6 pt-4 pb-2">
+            <span class="text-[10px] text-m7-dim font-medium">9:41</span>
+            <div class="flex gap-1.5 items-center">
+              <iconify-icon icon="solar:wi-fi-router-bold" class="text-m7-dim text-[10px]"></iconify-icon>
+              <iconify-icon icon="solar:battery-charge-bold" class="text-m7-dim text-[10px]"></iconify-icon>
+            </div>
+          </div>
+
+          <!-- Header: Player Info -->
+          <div class="relative z-10 px-6 pt-3 pb-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] text-m7-dim uppercase tracking-widest">Day 47 — 3월 28일</p>
+                <h2 class="text-xl font-black tracking-tight text-white mt-0.5">퀘스트 보드</h2>
+              </div>
+              <!-- Player Avatar -->
+              <div class="relative">
+                <div class="w-11 h-11 rounded-xl bg-m7-surface ring-1 ring-m7-border flex items-center justify-center overflow-hidden">
+                  <iconify-icon icon="solar:shield-user-bold" class="text-m7-accent text-xl"></iconify-icon>
+                </div>
+                <div class="absolute -bottom-1 -right-1 bg-m7-xp text-[8px] text-white font-black px-1.5 py-0.5 rounded-full ring-2 ring-m7-void">27</div>
+              </div>
+            </div>
+
+            <!-- XP Bar -->
+            <div class="mt-3 mb-1">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] text-m7-xp font-medium">Lv.27 탐험가</span>
+                <span class="text-[10px] text-m7-dim">2,340 / 3,000 XP</span>
+              </div>
+              <div class="h-1.5 bg-m7-surface rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-m7-xp to-m7-accent" style="--xp-width: 78%; animation: xpFill 1.5s cubic-bezier(0.16,1,0.3,1) forwards"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 Quest Slots -->
+          <div class="relative z-10 px-6 py-3">
+            <div class="rune-border rounded-2xl p-4">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                  <iconify-icon icon="solar:shield-star-bold" class="text-m7-gold text-sm"></iconify-icon>
+                  <span class="text-xs text-m7-dim font-medium">오늘의 퀘스트</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-lg font-black text-white">4</span>
+                  <span class="text-xs text-m7-dim">/7</span>
+                </div>
+              </div>
+              <div class="flex justify-between gap-1.5">
+                <!-- Cleared slots -->
+                <div class="w-9 h-9 rounded-lg bg-m7-quest/15 flex items-center justify-center ring-1 ring-m7-quest/30 slot-activate" style="animation-delay:0ms; box-shadow: 0 0 10px rgba(52,211,153,0.15)">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-quest text-sm"></iconify-icon>
+                </div>
+                <div class="w-9 h-9 rounded-lg bg-m7-accent/15 flex items-center justify-center ring-1 ring-m7-accent/30 slot-activate" style="animation-delay:80ms; box-shadow: 0 0 10px rgba(96,165,250,0.15)">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-accent text-sm"></iconify-icon>
+                </div>
+                <div class="w-9 h-9 rounded-lg bg-m7-xp/15 flex items-center justify-center ring-1 ring-m7-xp/30 slot-activate" style="animation-delay:160ms; box-shadow: 0 0 10px rgba(167,139,250,0.15)">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-xp text-sm"></iconify-icon>
+                </div>
+                <div class="w-9 h-9 rounded-lg bg-m7-gold/15 flex items-center justify-center ring-1 ring-m7-gold/30 slot-activate" style="animation-delay:240ms; box-shadow: 0 0 10px rgba(251,191,36,0.15)">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-gold text-sm"></iconify-icon>
+                </div>
+                <!-- Active slot -->
+                <div class="w-9 h-9 rounded-lg ring-1 ring-m7-accent/40 flex items-center justify-center relative" style="animation: pulseRing 2s ease-in-out infinite">
+                  <div class="w-2.5 h-2.5 rounded-full bg-m7-accent/60"></div>
+                </div>
+                <!-- Empty slots -->
+                <div class="w-9 h-9 rounded-lg ring-1 ring-m7-border flex items-center justify-center">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-dim/20"></div>
+                </div>
+                <div class="w-9 h-9 rounded-lg ring-1 ring-m7-border flex items-center justify-center">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-dim/20"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quest List -->
+          <div class="relative z-10 px-6 space-y-2.5 overflow-y-auto" style="max-height: 400px">
+
+            <!-- Cleared Quest -->
+            <div class="quest-card bg-m7-panel/60 rounded-xl p-3.5 ring-1 ring-m7-border opacity-50" style="--quest-color: #34d399">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-quest/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:heart-pulse-bold" class="text-m7-quest text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold line-through text-m7-dim truncate">30분 걷기</p>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="text-[9px] text-m7-quest bg-m7-quest/10 px-1.5 py-0.5 rounded font-medium">CLEARED</span>
+                    <span class="text-[9px] text-m7-gold">+40 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-full bg-m7-quest/10 flex items-center justify-center">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-quest text-xs"></iconify-icon>
+                </div>
+              </div>
+            </div>
+
+            <div class="quest-card bg-m7-panel/60 rounded-xl p-3.5 ring-1 ring-m7-border opacity-50" style="--quest-color: #60a5fa">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-accent/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:code-bold" class="text-m7-accent text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold line-through text-m7-dim truncate">코딩 1시간</p>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="text-[9px] text-m7-quest bg-m7-quest/10 px-1.5 py-0.5 rounded font-medium">CLEARED</span>
+                    <span class="text-[9px] text-m7-gold">+60 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-full bg-m7-accent/10 flex items-center justify-center">
+                  <iconify-icon icon="solar:check-read-bold" class="text-m7-accent text-xs"></iconify-icon>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Quest — with urgency -->
+            <div class="quest-card bg-m7-surface rounded-xl p-3.5 ring-1 ring-m7-accent/15 shadow-[0_0_20px_rgba(96,165,250,0.06)] quest-arrive" style="--quest-color: #fbbf24; animation-delay: 300ms">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-gold/10 flex items-center justify-center flex-shrink-0 relative">
+                  <iconify-icon icon="solar:videocamera-record-bold" class="text-m7-gold text-base"></iconify-icon>
+                  <div class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-m7-hp animate-ping"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <p class="text-sm font-bold text-white truncate">유튜브 채널 개설</p>
+                    <span class="text-[8px] text-m7-legendary bg-m7-legendary/10 px-1.5 py-0.5 rounded font-bold ring-1 ring-m7-legendary/20">EPIC</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[9px] text-m7-hp font-medium">D-6</span>
+                    <span class="text-[9px] text-m7-dim">비즈니스</span>
+                    <span class="text-[9px] text-m7-gold">+120 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-lg ring-1 ring-m7-accent/30 flex items-center justify-center">
+                  <div class="w-2 h-2 rounded-full bg-m7-accent/50"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project Quest — with progress -->
+            <div class="quest-card bg-m7-surface rounded-xl p-3.5 ring-1 ring-m7-border quest-arrive" style="--quest-color: #a78bfa; animation-delay: 400ms">
+              <div class="flex items-center gap-3 mb-2.5">
+                <div class="w-9 h-9 rounded-lg bg-m7-xp/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:document-text-bold" class="text-m7-xp text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <p class="text-sm font-bold text-white truncate">나노바나나2 가이드북</p>
+                    <span class="text-[8px] text-m7-xp bg-m7-xp/10 px-1.5 py-0.5 rounded font-bold ring-1 ring-m7-xp/20">CHAIN</span>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">창작/콘텐츠 · 장기 퀘스트</span>
+                </div>
+                <span class="text-xs font-black text-m7-xp">35%</span>
+              </div>
+              <!-- Progress bar with rune effect -->
+              <div class="ml-12 h-2 bg-m7-panel rounded-full overflow-hidden relative">
+                <div class="h-full bg-gradient-to-r from-m7-xp/80 to-m7-xp rounded-full relative" style="width: 35%">
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" style="animation: holoShimmer 3s linear infinite; background-size: 200% auto"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pending quests -->
+            <div class="quest-card bg-m7-panel rounded-xl p-3.5 ring-1 ring-m7-border quest-arrive" style="--quest-color: #34d399; animation-delay: 500ms">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-quest/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:cart-large-2-bold" class="text-m7-quest text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-white truncate">크몽 서비스 등록</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[9px] text-m7-dim">비즈니스</span>
+                    <span class="text-[9px] text-m7-gold">+80 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-lg ring-1 ring-m7-border flex items-center justify-center">
+                  <div class="w-2 h-2 rounded-full bg-m7-dim/30"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="quest-card bg-m7-panel rounded-xl p-3.5 ring-1 ring-m7-border quest-arrive" style="--quest-color: #60a5fa; animation-delay: 600ms">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-accent/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:wallet-money-bold" class="text-m7-accent text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-white truncate">팬이지 결제 모듈 리서치</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[9px] text-m7-dim">개발/코딩</span>
+                    <span class="text-[9px] text-m7-gold">+60 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-lg ring-1 ring-m7-border flex items-center justify-center">
+                  <div class="w-2 h-2 rounded-full bg-m7-dim/30"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="quest-card bg-m7-panel rounded-xl p-3.5 ring-1 ring-m7-border quest-arrive" style="--quest-color: #a78bfa; animation-delay: 700ms">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-m7-xp/10 flex items-center justify-center flex-shrink-0">
+                  <iconify-icon icon="solar:pallete-2-bold" class="text-m7-xp text-base"></iconify-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-white truncate">미션7 UI 디자인</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[9px] text-m7-dim">창작/콘텐츠</span>
+                    <span class="text-[9px] text-m7-gold">+50 XP</span>
+                  </div>
+                </div>
+                <div class="w-7 h-7 rounded-lg ring-1 ring-m7-border flex items-center justify-center">
+                  <div class="w-2 h-2 rounded-full bg-m7-dim/30"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Tab -->
+          <div class="absolute bottom-0 left-0 right-0 z-20 glass-nav bg-m7-void/80 border-t border-m7-border px-6 py-3 pb-8">
+            <div class="flex justify-around">
+              <div class="flex flex-col items-center gap-1 relative">
+                <iconify-icon icon="solar:shield-star-bold" class="text-m7-accent text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-accent font-medium">퀘스트</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:book-2-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">보관함</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:graph-up-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">전적</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:user-circle-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">프로필</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Screen 2: ALL CLEAR — 퍼펙트 레벨업 -->
+      <!-- ============================================ -->
+      <div class="animate-in" style="animation-delay: 200ms">
+        <p class="text-sm text-m7-dim mb-4 uppercase tracking-wider">02 — ALL CLEAR</p>
+        <div class="screen-frame bg-m7-void mx-auto relative overflow-hidden">
+          <!-- Dark overlay -->
+          <div class="absolute inset-0 bg-black/50 z-10"></div>
+
+          <!-- Radial blast -->
+          <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] z-10" style="background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, rgba(167,139,250,0.08) 40%, transparent 70%)"></div>
+
+          <!-- Rising particles -->
+          <div class="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+            <div class="absolute w-1 h-1 bg-m7-accent rounded-full" style="left:15%; bottom: 30%; animation: particleRise 2s ease-out infinite"></div>
+            <div class="absolute w-1.5 h-1.5 bg-m7-xp rounded-full" style="left:30%; bottom: 25%; animation: particleRise 2.3s ease-out infinite 0.3s"></div>
+            <div class="absolute w-1 h-1 bg-m7-gold rounded-full" style="left:50%; bottom: 35%; animation: particleRise 1.8s ease-out infinite 0.1s"></div>
+            <div class="absolute w-1.5 h-1.5 bg-m7-quest rounded-full" style="left:65%; bottom: 28%; animation: particleRise 2.1s ease-out infinite 0.5s"></div>
+            <div class="absolute w-1 h-1 bg-m7-accent rounded-full" style="left:80%; bottom: 32%; animation: particleRise 2.4s ease-out infinite 0.2s"></div>
+            <div class="absolute w-0.5 h-0.5 bg-white rounded-full" style="left:25%; bottom: 40%; animation: particleRise 1.9s ease-out infinite 0.6s"></div>
+            <div class="absolute w-0.5 h-0.5 bg-m7-gold rounded-full" style="left:45%; bottom: 22%; animation: particleRise 2.2s ease-out infinite 0.4s"></div>
+            <div class="absolute w-1 h-1 bg-m7-xp rounded-full" style="left:72%; bottom: 38%; animation: particleRise 2s ease-out infinite 0.7s"></div>
+          </div>
+
+          <!-- Content -->
+          <div class="absolute inset-0 z-30 flex flex-col items-center justify-center px-8">
+
+            <!-- All 7 Slots Lit -->
+            <div class="flex gap-2 mb-6">
+              <div class="w-9 h-9 rounded-lg bg-m7-quest/20 ring-1 ring-m7-quest/40 flex items-center justify-center slot-activate" style="animation-delay:0ms; box-shadow: 0 0 12px rgba(52,211,153,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-quest text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-accent/20 ring-1 ring-m7-accent/40 flex items-center justify-center slot-activate" style="animation-delay:80ms; box-shadow: 0 0 12px rgba(96,165,250,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-accent text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-xp/20 ring-1 ring-m7-xp/40 flex items-center justify-center slot-activate" style="animation-delay:160ms; box-shadow: 0 0 12px rgba(167,139,250,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-xp text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-gold/20 ring-1 ring-m7-gold/40 flex items-center justify-center slot-activate" style="animation-delay:240ms; box-shadow: 0 0 12px rgba(251,191,36,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-gold text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-hp/20 ring-1 ring-m7-hp/40 flex items-center justify-center slot-activate" style="animation-delay:320ms; box-shadow: 0 0 12px rgba(248,113,113,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-hp text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-quest/20 ring-1 ring-m7-quest/40 flex items-center justify-center slot-activate" style="animation-delay:400ms; box-shadow: 0 0 12px rgba(52,211,153,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-quest text-xs"></iconify-icon></div>
+              <div class="w-9 h-9 rounded-lg bg-m7-accent/20 ring-1 ring-m7-accent/40 flex items-center justify-center slot-activate" style="animation-delay:480ms; box-shadow: 0 0 12px rgba(96,165,250,0.2)"><iconify-icon icon="solar:check-read-bold" class="text-m7-accent text-xs"></iconify-icon></div>
+            </div>
+
+            <!-- ALL CLEAR Title -->
+            <div style="animation: rankUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards 0.6s; opacity: 0">
+              <p class="text-xs text-m7-gold uppercase tracking-[0.3em] font-bold mb-2 text-center">QUEST COMPLETE</p>
+              <h2 class="text-5xl font-black tracking-tight text-center mb-1" style="text-shadow: 0 0 60px rgba(96,165,250,0.4), 0 0 120px rgba(167,139,250,0.2)">
+                <span class="holo-text">ALL CLEAR</span>
+              </h2>
+            </div>
+
+            <!-- XP Gained -->
+            <div class="mt-6 mb-6" style="animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards 1.2s; opacity: 0">
+              <div class="rune-border rounded-2xl px-6 py-4 text-center">
+                <p class="text-[10px] text-m7-dim uppercase tracking-wider mb-2">오늘 획득한 경험치</p>
+                <p class="text-3xl font-black text-m7-gold" style="text-shadow: 0 0 20px rgba(251,191,36,0.3)">+460 XP</p>
+                <div class="flex items-center justify-center gap-2 mt-2">
+                  <iconify-icon icon="solar:fire-bold" class="text-orange-400"></iconify-icon>
+                  <span class="text-sm text-white font-bold">12일 연속 ALL CLEAR</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Level Up Notification -->
+            <div class="mb-8" style="animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards 1.6s; opacity: 0">
+              <div class="bg-m7-xp/10 rounded-xl px-5 py-3 ring-1 ring-m7-xp/20 flex items-center gap-3">
+                <iconify-icon icon="solar:star-bold" class="text-m7-gold text-2xl"></iconify-icon>
+                <div>
+                  <p class="text-xs text-m7-xp font-bold">LEVEL UP!</p>
+                  <p class="text-[10px] text-m7-dim">Lv.27 탐험가 → Lv.28 정복자</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 w-full max-w-[280px]" style="animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards 2s; opacity: 0">
+              <button class="flex-1 bg-gradient-to-r from-m7-accent to-m7-xp text-white font-bold py-3.5 rounded-xl text-sm transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(96,165,250,0.2)]">
+                <iconify-icon icon="solar:share-bold"></iconify-icon>
+                전적 공유
+              </button>
+              <button class="flex-1 bg-m7-surface text-m7-dim font-medium py-3.5 rounded-xl text-sm ring-1 ring-m7-border transition-all hover:scale-[1.02] active:scale-[0.98]">
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Screen 3: 전적 (통계) -->
+      <!-- ============================================ -->
+      <div class="animate-in" style="animation-delay: 300ms">
+        <p class="text-sm text-m7-dim mb-4 uppercase tracking-wider">03 — 전적</p>
+        <div class="screen-frame bg-m7-void mx-auto">
+          <!-- Ambient Orb -->
+          <div class="absolute top-40 right-0 w-48 h-48 rounded-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%); animation: orbFloat 9s ease-in-out infinite 1s"></div>
+
+          <!-- Status Bar -->
+          <div class="relative z-10 flex justify-between items-center px-6 pt-4 pb-2">
+            <span class="text-[10px] text-m7-dim font-medium">9:41</span>
+            <div class="flex gap-1.5"><iconify-icon icon="solar:wi-fi-router-bold" class="text-m7-dim text-[10px]"></iconify-icon><iconify-icon icon="solar:battery-charge-bold" class="text-m7-dim text-[10px]"></iconify-icon></div>
+          </div>
+
+          <!-- Header -->
+          <div class="relative z-10 px-6 pt-3 pb-4">
+            <h2 class="text-xl font-black tracking-tight text-white">전적</h2>
+            <div class="flex gap-2 mt-3">
+              <button class="bg-m7-accent/10 text-m7-accent text-[10px] font-bold px-3 py-1.5 rounded-lg ring-1 ring-m7-accent/20">이번 주</button>
+              <button class="text-m7-dim text-[10px] font-medium px-3 py-1.5 rounded-lg ring-1 ring-m7-border">이번 달</button>
+              <button class="text-m7-dim text-[10px] font-medium px-3 py-1.5 rounded-lg ring-1 ring-m7-border">전체</button>
+            </div>
+          </div>
+
+          <!-- Player Stats Card -->
+          <div class="relative z-10 px-6 mb-3">
+            <div class="rune-border rounded-2xl p-5">
+              <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-2xl font-black text-white">12</p>
+                  <p class="text-[9px] text-m7-dim mt-0.5">연속 ALL CLEAR</p>
+                </div>
+                <div>
+                  <p class="text-2xl font-black text-m7-xp">27</p>
+                  <p class="text-[9px] text-m7-dim mt-0.5">현재 레벨</p>
+                </div>
+                <div>
+                  <p class="text-2xl font-black text-m7-gold">2,340</p>
+                  <p class="text-[9px] text-m7-dim mt-0.5">총 XP</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Battle Log -->
+          <div class="relative z-10 px-6 mb-3">
+            <div class="bg-m7-panel rounded-2xl p-4 ring-1 ring-m7-border">
+              <div class="flex items-center gap-2 mb-4">
+                <iconify-icon icon="solar:calendar-bold" class="text-m7-accent text-sm"></iconify-icon>
+                <p class="text-sm font-bold text-white">주간 전투 기록</p>
+              </div>
+              <div class="flex items-end justify-between gap-1.5 h-28">
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 100%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-quest/60 to-m7-quest/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-quest font-bold">7/7</div>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">월</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 85%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-accent/60 to-m7-accent/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-dim">6/7</div>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">화</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 100%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-quest/60 to-m7-quest/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-quest font-bold">7/7</div>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">수</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 71%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-xp/60 to-m7-xp/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-dim">5/7</div>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">목</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 100%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-quest/60 to-m7-quest/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-quest font-bold">7/7</div>
+                  </div>
+                  <span class="text-[9px] text-m7-dim">금</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg relative" style="height: 57%">
+                    <div class="absolute inset-0 bg-gradient-to-t from-m7-gold/60 to-m7-gold/20 rounded-lg"></div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] text-m7-dim">4/7</div>
+                  </div>
+                  <span class="text-[9px] text-white font-bold">토</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-1.5">
+                  <div class="w-full rounded-lg ring-1 ring-m7-border ring-dashed" style="height: 14%"></div>
+                  <span class="text-[9px] text-m7-dim">일</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quest Chain Progress -->
+          <div class="relative z-10 px-6 mb-3">
+            <div class="bg-m7-panel rounded-2xl p-4 ring-1 ring-m7-border">
+              <div class="flex items-center gap-2 mb-4">
+                <iconify-icon icon="solar:link-round-bold" class="text-m7-xp text-sm"></iconify-icon>
+                <p class="text-sm font-bold text-white">퀘스트 체인 (장기)</p>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[8px] text-m7-xp bg-m7-xp/10 px-1.5 py-0.5 rounded font-bold">CHAIN</span>
+                      <span class="text-xs text-white font-medium">나노바나나2 가이드북</span>
+                    </div>
+                    <span class="text-[10px] text-m7-xp font-bold">35%</span>
+                  </div>
+                  <div class="h-1.5 bg-m7-surface rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-m7-xp/80 to-m7-xp rounded-full" style="width:35%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[8px] text-m7-accent bg-m7-accent/10 px-1.5 py-0.5 rounded font-bold">CHAIN</span>
+                      <span class="text-xs text-white font-medium">미션7 MVP</span>
+                    </div>
+                    <span class="text-[10px] text-m7-accent font-bold">15%</span>
+                  </div>
+                  <div class="h-1.5 bg-m7-surface rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-m7-accent/80 to-m7-accent rounded-full" style="width:15%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[8px] text-m7-legendary bg-m7-legendary/10 px-1.5 py-0.5 rounded font-bold">EPIC</span>
+                      <span class="text-xs text-white font-medium">유튜브 채널 개설</span>
+                    </div>
+                    <span class="text-[10px] text-m7-hp font-bold">D-6</span>
+                  </div>
+                  <div class="h-1.5 bg-m7-surface rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-m7-legendary/80 to-m7-legendary rounded-full" style="width:10%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Class Distribution -->
+          <div class="relative z-10 px-6">
+            <div class="bg-m7-panel rounded-2xl p-4 ring-1 ring-m7-border">
+              <div class="flex items-center gap-2 mb-3">
+                <iconify-icon icon="solar:pie-chart-2-bold" class="text-m7-gold text-sm"></iconify-icon>
+                <p class="text-sm font-bold text-white">퀘스트 분포</p>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-accent"></div>
+                  <span class="text-[10px] text-m7-dim flex-1">개발/코딩</span>
+                  <div class="w-20 h-1 bg-m7-surface rounded-full"><div class="h-full bg-m7-accent rounded-full" style="width:38%"></div></div>
+                  <span class="text-[10px] text-white font-bold w-7 text-right">38%</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-quest"></div>
+                  <span class="text-[10px] text-m7-dim flex-1">비즈니스</span>
+                  <div class="w-20 h-1 bg-m7-surface rounded-full"><div class="h-full bg-m7-quest rounded-full" style="width:26%"></div></div>
+                  <span class="text-[10px] text-white font-bold w-7 text-right">26%</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-xp"></div>
+                  <span class="text-[10px] text-m7-dim flex-1">창작/콘텐츠</span>
+                  <div class="w-20 h-1 bg-m7-surface rounded-full"><div class="h-full bg-m7-xp rounded-full" style="width:22%"></div></div>
+                  <span class="text-[10px] text-white font-bold w-7 text-right">22%</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-m7-hp"></div>
+                  <span class="text-[10px] text-m7-dim flex-1">건강/운동</span>
+                  <div class="w-20 h-1 bg-m7-surface rounded-full"><div class="h-full bg-m7-hp rounded-full" style="width:14%"></div></div>
+                  <span class="text-[10px] text-white font-bold w-7 text-right">14%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Tab -->
+          <div class="absolute bottom-0 left-0 right-0 z-20 glass-nav bg-m7-void/80 border-t border-m7-border px-6 py-3 pb-8">
+            <div class="flex justify-around">
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:shield-star-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">퀘스트</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:book-2-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">보관함</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:graph-up-bold" class="text-m7-accent text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-accent font-medium">전적</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <iconify-icon icon="solar:user-circle-linear" class="text-m7-dim text-xl"></iconify-icon>
+                <span class="text-[9px] text-m7-dim">프로필</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Design Notes -->
+    <div class="mt-20 animate-in" style="animation-delay: 400ms">
+      <div class="rune-border rounded-[2rem] p-8 max-w-3xl">
+        <h3 class="text-lg font-bold mb-4 text-white">RPG Quest UI — 디자인 노트</h3>
+        <div class="space-y-3 text-sm text-m7-dim leading-relaxed break-keep-all">
+          <p><span class="text-white font-medium">컨셉:</span> SF RPG 미션 브리핑. 매일 아침 퀘스트가 "도착"하고, 클리어하면 XP를 얻고, 7개 전부 클리어하면 "ALL CLEAR" + 레벨업. 생산성 도구가 아닌 게임을 하는 느낌.</p>
+          <p><span class="text-white font-medium">비주얼 언어:</span> Vantablack + 홀로그래픽 시머. 배경에 떠다니는 ambient orb, 카드에 rune-border (그라디언트 보더), 완료 시 글로우 이펙트. 중세 판타지가 아닌 "데스티니/사이버펑크 HUD" 무드.</p>
+          <p><span class="text-white font-medium">게임 용어 매핑:</span> 미션→퀘스트, 통계→전적, 완료→CLEARED, 7/7→ALL CLEAR, 스트릭→연속 ALL CLEAR, 프로젝트→퀘스트 체인(CHAIN), 중요 미션→EPIC, XP 시스템으로 레벨업.</p>
+          <p><span class="text-white font-medium">퀘스트 등급:</span> 일반(기본), CHAIN(장기 프로젝트, 보라색), EPIC(D-day/중요, 금색), LEGENDARY(특별 업적, 미래).</p>
+          <p><span class="text-white font-medium">모션:</span> 퀘스트 도착 시 우측에서 슬라이드인(questArrive), 슬롯 활성화 시 스케일 바운스+글로우(slotActivate), ALL CLEAR 시 파티클 상승+홀로 텍스트+랭크업.</p>
+          <p><span class="text-white font-medium">컬러:</span> void(#06060e) 베이스, accent(Blue), xp(Purple), gold(Amber), quest(Emerald), hp(Red). 카테고리 구분과 게임 의미를 동시에 전달.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.style.animationPlayState = 'running';
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-in').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

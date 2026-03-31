@@ -1,0 +1,106 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기본 배경색 지정 */
+body {
+  background-color: white;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 스크롤바 숨기기 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+@layer base {
+  :root {
+    /* 기본 (갤러리 템플릿 - 한국 전통 색상) */
+    --background: 40 30% 97%; /* 한지색 */
+    --foreground: 0 0% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    
+    --popover: 40 30% 97%;
+    --popover-foreground: 0 0% 10%;
+    
+    --primary: 195 85% 35%; /* 단청 청색 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 8 85% 55%; /* 단청 적색 */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 40 20% 92%;
+    --muted-foreground: 0 0% 40%;
+    
+    --accent: 45 95% 50%; /* 단청 황색 */
+    --accent-foreground: 0 0% 10%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 40 20% 90%;
+    --input: 40 20% 90%;
+    --ring: 195 85% 35%;
+    
+    --radius: 0.5rem;
+  }
+
+  /* 플랫폼 테마 (Modern Black & White) */
+  .theme-platform {
+    --background: 0 0% 100%; /* Pure White */
+    --foreground: 0 0% 0%;   /* Pure Black */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    
+    --primary: 0 0% 0%;      /* Black Primary */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 0 0% 40%;   /* Gray Secondary */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;       /* Very Light Gray */
+    --muted-foreground: 0 0% 40%;
+    
+    --accent: 0 0% 90%;      /* Light Gray Accent */
+    --accent-foreground: 0 0% 0%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+    
+    --radius: 0rem; /* Sharp edges for modern look */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 유틸리티 - 명조체(Serif) 강제 적용 클래스 */
+.font-serif-heading {
+  font-family: var(--font-playfair), serif;
+}
