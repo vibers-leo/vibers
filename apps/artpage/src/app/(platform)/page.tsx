@@ -417,40 +417,87 @@ export default function PlatformHomePage() {
         </div>
       </section>
 
-      {/* ── 6. CTA ──────────────────────────────────────── */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-gray-900"
-            style={{ wordBreak: "keep-all" }}
-          >
-            당신만의 예술 세계를
-            <br />
-            만들어보세요
-          </h2>
-          <p
-            className="text-lg text-gray-500 max-w-lg mx-auto mb-10 leading-relaxed"
-            style={{ wordBreak: "keep-all" }}
-          >
-            3분이면 완성됩니다. 수수료? 당신이 정합니다.
-          </p>
+      {/* ── 6. Dual-Track Onboarding — 선택의 자유 ────────────────── */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100" id="start-track">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6">
+              당신에게 맞는 시작 방법을 선택하세요
+            </h2>
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light">
+              직접 실험에 참여하거나, 전문가의 도움을 받아 최적화된 페이지를 가질 수 있습니다.
+            </p>
+          </div>
 
-          <Link
-            href="/create"
-            className="group inline-flex items-center gap-3 px-10 py-5 bg-gray-900 text-white text-lg font-bold rounded-full hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/10"
-            style={{
-              transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-          >
-            무료로 시작하기
-            <ArrowRight
-              size={22}
-              className="group-hover:translate-x-1 transition-transform"
-            />
-          </Link>
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Track A: Self-Build */}
+            <div className="group relative p-10 md:p-12 rounded-[40px] bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-2xl transition-all duration-700 overflow-hidden">
+              <div className="relative z-10 h-full flex flex-col">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border border-gray-100 mb-8 shadow-sm">
+                  <Sparkles className="text-emerald-500" size={32} />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">직접 빌드하기</h3>
+                <p className="text-gray-500 mb-12 leading-relaxed">
+                  AI가 당신의 작품을 분석하고 스타일을 추천합니다. 
+                  모든 설정을 당신이 직접 결정하며 실험의 주체가 됩니다.
+                </p>
+                <div className="mt-auto">
+                  <Link
+                    href="/create"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-emerald-600 transition-all shadow-xl shadow-black/10"
+                  >
+                    Start Experiment
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100/30 rounded-full blur-[80px] -mr-32 -mt-32 group-hover:bg-emerald-200/40 transition-all duration-1000" />
+            </div>
 
-          <p className="text-xs text-gray-400 mt-6">
-            가입 후 3분 내 페이지 완성 — 무료로 시작, 가치는 내가 설정
+            {/* Track B: Concierge Service */}
+            <div className="group relative p-10 md:p-12 rounded-[40px] bg-gray-900 text-white hover:shadow-[0_0_80px_rgba(16,185,129,0.15)] transition-all duration-700 overflow-hidden border border-gray-800 hover:border-gray-700">
+              <div className="relative z-10 h-full flex flex-col">
+                <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center border border-gray-700 mb-8">
+                  <Instagram className="text-emerald-400" size={32} />
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="text-3xl font-bold text-white tracking-tight">전문가 의뢰하기</h3>
+                  <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-widest rounded-full">VIP</span>
+                </div>
+                <p className="text-gray-400 mb-12 leading-relaxed font-light">
+                  바쁜 아티스트를 위한 컨시어지 서비스입니다.<br />
+                  인스타그램 주소만 남겨주시면, 최적의 무드로 세팅된 
+                  페이지 링크를 24시간 내에 메일로 전송해 드립니다.
+                </p>
+                
+                <div className="mt-auto space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-[1.2]">
+                      <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
+                      <input 
+                        type="text" 
+                        placeholder="@instagram_handle"
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-2xl px-10 py-4 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all placeholder:text-gray-600"
+                      />
+                    </div>
+                    <input 
+                      type="email" 
+                      placeholder="email@address.com"
+                      className="flex-1 bg-gray-800/50 border border-gray-700 rounded-2xl px-6 py-4 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all placeholder:text-gray-600"
+                    />
+                  </div>
+                  <button className="group w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-gray-900 text-[11px] font-bold uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                    Send Request
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -ml-32 -mb-32" />
+            </div>
+          </div>
+
+          <p className="text-center text-gray-400 text-xs mt-12 font-light">
+            * 24시간 내 발송 보장 — 전문가의 인공지능 기반 분석 및 최적화 세팅 포함
           </p>
         </div>
       </section>
