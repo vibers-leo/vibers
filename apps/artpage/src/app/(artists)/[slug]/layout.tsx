@@ -79,31 +79,37 @@ export default async function SlugLayout({
     ? `${crimson.variable} ${openSans.variable} ${montserrat.variable}`
     : `${notoSerif.variable} ${inter.variable}`;
 
-  return (
-    <html lang="ko" className={fontClasses}>
-      <body className={config.theme.bodyClass} style={config.theme.bodyStyle}>
-        <Toaster position="top-center" richColors />
+  const isMonopage = config.template === "monopage";
 
-        <SlugProvider slug={slug} config={config}>
-          {/* 헤더 — 템플릿별 동적 로드 */}
-          {isArthyun ? (
+  return (
+    <div className={`${fontClasses} ${config.theme.bodyClass} min-h-screen content-wrapper`} style={config.theme.bodyStyle}>
+      <Toaster position="top-center" richColors />
+
+      <SlugProvider slug={slug} config={config}>
+        {/* 헤더 — 템플릿별 동적 로드 */}
+        {!isMonopage && (
+          isArthyun ? (
             <ArthyunHeader />
           ) : (
             <ArtWayHeader />
-          )}
+          )
+        )}
 
-          {/* 메인 컨텐츠 */}
-          <main className="min-h-screen">{children}</main>
+        {/* 메인 컨텐츠 */}
+        <main className={isMonopage ? "min-h-screen" : "min-h-screen pt-16 md:pt-0"}>
+          {children}
+        </main>
 
-          {/* 푸터 — 템플릿별 */}
-          {isArthyun ? (
+        {/* 푸터 — 템플릿별 */}
+        {!isMonopage && (
+          isArthyun ? (
             <ArthyunFooter config={config} />
           ) : (
             <ArtWayFooter config={config} />
-          )}
-        </SlugProvider>
-      </body>
-    </html>
+          )
+        )}
+      </SlugProvider>
+    </div>
   );
 }
 
