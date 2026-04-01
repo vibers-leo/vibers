@@ -1,24 +1,47 @@
-// api/upload/route.ts — VM 업로드 서버 프록시 (VM이 NCP Object Storage로 전송)
+// api/upload/route.ts — NCP Object Storage 직접 업로드
 import { NextRequest, NextResponse } from "next/server";
-
-const UPLOAD_SERVER = "http://49.50.138.93:8091";
+import { ncpClient, NCP_BUCKET, getPublicUrl } from "@vibers/storage/server";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const res = await fetch(`${UPLOAD_SERVER}/upload`, {
-      method: "POST",
-      body: formData,
-    });
+    const file = formData.get("file") as File;
+    const category = (formData.get("category") as string) || "monopage";
 
-    if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json({ error: `업로드 실패: ${text}` }, { status: res.status });
+    if (!file) {
+      return NextResponse.json({ error: "파일이 없습니다." }, { status: 400 });
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    // 파일 데이터를 Buffer로 변환
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${category}/${Date.now()}_${file.name}`;
+
+    // NCP Object Storage 업로드 명령
+    const command = new PutObjectCommand({
+      Bucket: NCP_BUCKET,
+      Key: fileName,
+      Body: buffer,
+      ContentType: file.type,
+      ACL: "public-read", // 퍼블릭 읽기 권한 부여
+    });
+
+    await ncpClient.send(command);
+
+    // 업로드된 파일의 퍼블릭 URL 반환
+    const publicUrl = getPublicUrl(fileName);
+
+    return NextResponse.json({ 
+      success: true, 
+      url: publicUrl,
+      key: fileName 
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: `서버 오류: ${String(error)}` }, { status: 500 });
+    console.error("NCP Upload Error:", error);
+    return NextResponse.json(
+      { error: `서버 오류: ${String(error)}` }, 
+      { status: 500 }
+    );
   }
 }

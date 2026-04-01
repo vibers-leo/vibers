@@ -144,18 +144,6 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* 헤더 */}
-      <header className="px-6 py-5 flex items-center justify-between border-b border-gray-100">
-        <Link
-          href="/create"
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-black transition-colors"
-        >
-          <ArrowLeft size={16} />
-          돌아가기
-        </Link>
-        <span className="text-sm text-gray-400">1/4 단계</span>
-      </header>
-
       <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
         <h1 className="text-2xl font-semibold mb-2">작품 이미지 업로드</h1>
         <p className="text-gray-500 mb-8">

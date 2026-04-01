@@ -10,7 +10,7 @@ export default function PlatformLayout({
   return (
     <div className="flex flex-col min-h-[100dvh] theme-platform">
       <PlatformHeader />
-      <main className="flex-grow">
+      <main className="flex-grow pt-20 lg:pt-24">
         {children}
       </main>
       <footer className="bg-background border-t border-border pt-20 pb-12">

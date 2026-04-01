@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Script from "next/script";
 import VibersBanner from "@/components/VibersBanner";
@@ -10,6 +13,9 @@ export default function AdminLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+    const isLoginPage = pathname?.includes("/admin/login");
+
     return (
         <AdminSiteProvider>
         <Script
@@ -19,8 +25,9 @@ export default function AdminLayout({
             strategy="afterInteractive"
         />
         <div className="min-h-screen bg-gray-50 pt-20">
-            {/* Admin Header / Nav */}
-            <div className="bg-white border-b border-gray-200">
+            {/* Admin Header / Nav - Hide on login page */}
+            {!isLoginPage && (
+                <div className="bg-white border-b border-gray-200">
                 <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <Link href="/admin" className="font-serif font-bold text-xl">
@@ -81,7 +88,8 @@ export default function AdminLayout({
                         </Link>
                     </div>
                 </div>
-            </div>
+              </div>
+            )}
 
             {children}
             <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px 16px' }}>

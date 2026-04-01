@@ -124,4 +124,4 @@ function extractKeyFromUrl(url: string): string {
   }
 }
 
-export { ALLOWED_TYPES, MAX_SIZE, getPublicUrl };
+export { ALLOWED_TYPES, MAX_SIZE, getPublicUrl, ncpClient, NCP_BUCKET };
