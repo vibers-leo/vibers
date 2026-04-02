@@ -42,6 +42,14 @@ const iconMap: Record<string, React.ElementType> = {
   linkedin: Linkedin,
 };
 
+function normalizeUrl(url: string) {
+  if (!url) return "#";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+    return url;
+  }
+  return `https://${url}`;
+}
+
 function getIcon(iconName: string | null) {
   if (!iconName) return ExternalLink;
   return iconMap[iconName.toLowerCase()] || ExternalLink;
@@ -86,7 +94,7 @@ export default function LinkButtons({ slug, links: propLinks }: LinkButtonsProps
         return (
           <a
             key={link.id}
-            href={link.url}
+            href={normalizeUrl(link.url)}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-3 w-full px-5 py-4 bg-white border border-gray-100

@@ -3,6 +3,15 @@
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
+function normalizeUrl(url: string | null) {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 type CreateSiteInput = {
   slug: string;
   name: string;
@@ -74,9 +83,9 @@ export async function createArtistSite(
         template: template,
         og_description: bio || `${name}의 아트 포트폴리오`,
         domain: `https://monopage.kr/${slug}`,
-        instagram_url: social?.instagram || null,
-        blog_url: social?.blog || null,
-        youtube_url: social?.youtube || null,
+        instagram_url: normalizeUrl(social?.instagram || null),
+        blog_url: normalizeUrl(social?.blog || null),
+        youtube_url: normalizeUrl(social?.youtube || null),
         bio: bio || null,
         show_support: data.show_support ?? true,
         show_instagram: data.show_instagram ?? true,
@@ -104,7 +113,7 @@ export async function createArtistSite(
       const linkData = data.customLinks.map((l, i) => ({
         site_slug: slug,
         title: l.title || "Link",
-        url: l.url,
+        url: normalizeUrl(l.url) || "#",
         icon: l.icon || "globe",
         sort_order: i,
         is_active: true,
