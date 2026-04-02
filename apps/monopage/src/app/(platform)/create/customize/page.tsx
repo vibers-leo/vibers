@@ -17,8 +17,8 @@ export default function CustomizePage() {
   const [bio, setBio] = useState("");
   const [slug, setSlug] = useState("");
   const [instagram, setInstagram] = useState("");
-  const [blog, setBlog] = useState("");
-  const [youtube, setYoutube] = useState("");
+  const [showSupport, setShowSupport] = useState(true);
+  const [showInstagram, setShowInstagram] = useState(true);
 
   // 쿠키 읽기 헬퍼
   const getCookie = (name: string) => {
@@ -47,6 +47,7 @@ export default function CustomizePage() {
     if (igName) {
       setArtistName(igName);
       setInstagram(`https://instagram.com/${igName}`);
+      setShowInstagram(true);
     }
     if (igImagesRaw) {
       try {
@@ -100,6 +101,8 @@ export default function CustomizePage() {
           blog: blog || undefined,
           youtube: youtube || undefined,
         },
+        show_support: showSupport,
+        show_instagram: showInstagram,
       });
 
       if (result.success) {
@@ -251,6 +254,31 @@ export default function CustomizePage() {
               {error}
             </div>
           )}
+
+          {/* 페이지 옵션 */}
+          <div>
+            <label className="block text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">Page Options</label>
+            <div className="space-y-4">
+              <label className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-emerald-200 transition-all cursor-pointer">
+                <span className="text-sm font-bold text-gray-700">후원 기능 (Support) 활성화</span>
+                <input 
+                  type="checkbox" 
+                  className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                  checked={showSupport}
+                  onChange={(e) => setShowSupport(e.target.checked)}
+                />
+              </label>
+              <label className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-emerald-200 transition-all cursor-pointer">
+                <span className="text-sm font-bold text-gray-700">인스타그램 피드 연동</span>
+                <input 
+                  type="checkbox" 
+                  className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                  checked={showInstagram}
+                  onChange={(e) => setShowInstagram(e.target.checked)}
+                />
+              </label>
+            </div>
+          </div>
 
           {/* 제출 */}
           <button

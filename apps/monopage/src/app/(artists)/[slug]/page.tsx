@@ -57,27 +57,33 @@ async function MonopageHome({ slug }: { slug: string }) {
             className="object-cover"
           />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">
           {siteSettings.site_name || slug}
         </h1>
-        {(siteSettings as any).bio && (
-          <p className="text-gray-500 text-sm mb-6 leading-relaxed max-w-xs mx-auto" style={{ wordBreak: "keep-all" }}>
-            {(siteSettings as any).bio}
-          </p>
-        )}
-
-        {/* 소셜 아이콘 바 (자동 연동) */}
-        <div className="flex items-center justify-center gap-5 mb-10">
-          {siteSettings.instagram_url && (
+        
+        {/* 인스타그램 핸들 표시 (바이오 느낌 강화) */}
+        {siteSettings.instagram_url && (
+          <div className="flex items-center justify-center gap-1.5 mb-5 group">
+            <Instagram size={14} className="text-pink-500 group-hover:scale-110 transition-transform" />
             <a 
               href={siteSettings.instagram_url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
+              className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors"
             >
-              <Instagram size={20} />
+              @{siteSettings.instagram_url.split('/').filter(Boolean).pop()}
             </a>
-          )}
+          </div>
+        )}
+
+        {(siteSettings as any).bio && (
+          <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-xs mx-auto" style={{ wordBreak: "keep-all" }}>
+            {(siteSettings as any).bio}
+          </p>
+        )}
+
+        {/* 소셜 아이콘 바 (추가 소셜 채널용) */}
+        <div className="flex items-center justify-center gap-4 mb-10">
           {siteSettings.youtube_url && (
             <a 
               href={siteSettings.youtube_url} 

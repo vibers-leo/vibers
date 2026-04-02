@@ -14,6 +14,8 @@ type CreateSiteInput = {
     blog?: string;
     youtube?: string;
   };
+  show_support?: boolean;
+  show_instagram?: boolean;
 };
 
 type CreateSiteResult =
@@ -74,6 +76,9 @@ export async function createArtistSite(
         instagram_url: social?.instagram || null,
         blog_url: social?.blog || null,
         youtube_url: social?.youtube || null,
+        bio: bio || null,
+        show_support: data.show_support ?? true,
+        show_instagram: data.show_instagram ?? true,
         is_active: true,
       },
     });
