@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, Globe, Instagram, Youtube, ShoppingBag, Music, Twitter, Github, Linkedin } from "lucide-react";
 import { createArtistSite } from "@/actions/siteActions";
 
 export default function CustomizePage() {
@@ -17,8 +17,40 @@ export default function CustomizePage() {
   const [bio, setBio] = useState("");
   const [slug, setSlug] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [blog, setBlog] = useState("");
+  const [youtube, setYoutube] = useState("");
   const [showSupport, setShowSupport] = useState(true);
   const [showInstagram, setShowInstagram] = useState(true);
+  const [customLinks, setCustomLinks] = useState<{ id: string; title: string; url: string; icon: string }[]>([]);
+
+  // 아이콘 자동 추측 헬퍼
+  const guessIcon = (url: string) => {
+    const u = url.toLowerCase();
+    if (u.includes("shop") || u.includes("store")) return "shop";
+    if (u.includes("music") || u.includes("spotify") || u.includes("soundcloud")) return "music";
+    if (u.includes("github")) return "github";
+    if (u.includes("linkedin")) return "linkedin";
+    return "globe";
+  };
+
+  const addLink = () => {
+    setCustomLinks([...customLinks, { id: Math.random().toString(36).substr(2, 9), title: "", url: "", icon: "globe" }]);
+  };
+
+  const updateLink = (id: string, field: "title" | "url", value: string) => {
+    setCustomLinks(customLinks.map(l => {
+      if (l.id === id) {
+        const newLink = { ...l, [field]: value };
+        if (field === "url") newLink.icon = guessIcon(value);
+        return newLink;
+      }
+      return l;
+    }));
+  };
+
+  const removeLink = (id: string) => {
+    setCustomLinks(customLinks.filter(l => l.id !== id));
+  };
 
   // 쿠키 읽기 헬퍼
   const getCookie = (name: string) => {
@@ -103,6 +135,7 @@ export default function CustomizePage() {
         },
         show_support: showSupport,
         show_instagram: showInstagram,
+        customLinks: customLinks.map(l => ({ title: l.title, url: l.url, icon: l.icon })),
       });
 
       if (result.success) {
@@ -209,42 +242,67 @@ export default function CustomizePage() {
             </div>
           </div>
 
-          {/* SNS 링크 */}
-          <div>
-            <label className="block text-sm font-medium mb-3">
-              SNS 링크 <span className="text-xs text-gray-400">(선택)</span>
-            </label>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400 w-20">Instagram</span>
-                <input
-                  type="url"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  placeholder="https://instagram.com/..."
-                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
-                />
+          {/* 링크트리 스타일 멀티 링크 */}
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-900 uppercase tracking-widest">Profile Links</label>
+                <p className="text-xs text-gray-400 mt-1">자신의 링크를 추가하고 꾸며보세요 (Linktree 스타일)</p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400 w-20">Blog</span>
-                <input
-                  type="url"
-                  value={blog}
-                  onChange={(e) => setBlog(e.target.value)}
-                  placeholder="https://blog.naver.com/..."
-                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-400 w-20">YouTube</span>
-                <input
-                  type="url"
-                  value={youtube}
-                  onChange={(e) => setYoutube(e.target.value)}
-                  placeholder="https://youtube.com/@..."
-                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={addLink}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg hover:bg-emerald-100 transition-colors"
+              >
+                + 링크 추가
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {customLinks.map((link) => (
+                <div key={link.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-3 relative group">
+                  <button
+                    type="button"
+                    onClick={() => removeLink(link.id)}
+                    className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  
+                  <div className="grid gap-3 pr-8">
+                    <input
+                      type="text"
+                      value={link.title}
+                      onChange={(e) => updateLink(link.id, "title", e.target.value)}
+                      placeholder="링크 제목 (예: 포트폴리오 보기, 스마트스토어)"
+                      className="w-full bg-transparent border-none p-0 text-sm font-bold placeholder:text-gray-300 focus:ring-0"
+                    />
+                    <div className="flex items-center gap-2">
+                       <div className="w-6 h-6 rounded-md bg-white border border-gray-100 flex items-center justify-center">
+                          <Globe size={12} className="text-gray-400" />
+                       </div>
+                       <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => updateLink(link.id, "url", e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 bg-transparent border-none p-0 text-xs text-gray-400 placeholder:text-gray-200 focus:ring-0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {customLinks.length === 0 && (
+                <div className="py-12 border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center text-center">
+                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-200">
+                    <Plus size={24} />
+                  </div>
+                  <p className="text-xs text-gray-300 font-medium whitespace-pre-line">
+                    아직 등록된 링크가 없습니다.{"\n"}[링크 추가] 버튼을 눌러 시작하세요!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

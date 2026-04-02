@@ -16,6 +16,7 @@ type CreateSiteInput = {
   };
   show_support?: boolean;
   show_instagram?: boolean;
+  customLinks?: { title: string; url: string; icon?: string }[];
 };
 
 type CreateSiteResult =
@@ -98,7 +99,23 @@ export async function createArtistSite(
       });
     }
 
-    // 3. 캐시 무효화
+    // 3. 커스텀 링크 (Linktree 스타일) 삽입
+    if (data.customLinks && data.customLinks.length > 0) {
+      const linkData = data.customLinks.map((l, i) => ({
+        site_slug: slug,
+        title: l.title || "Link",
+        url: l.url,
+        icon: l.icon || "globe",
+        sort_order: i,
+        is_active: true,
+      }));
+
+      await prisma.profileLink.createMany({
+        data: linkData,
+      });
+    }
+
+    // 4. 캐시 무효화
     revalidatePath(`/${slug}`);
     revalidatePath("/");
 
