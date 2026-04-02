@@ -1,4 +1,4 @@
-# ArtPage - 블록 기반 CMS 가이드
+# Monopage - 블록 기반 CMS 가이드
 
 ## 🎨 Tiptap 블록 에디터 시스템
 
@@ -6,7 +6,8 @@
 
 - **Tiptap**: 블록 기반 리치 텍스트 에디터
 - **@dnd-kit**: 드래그 앤 드롭
-- **Supabase**: 블록 데이터 저장
+- **Prisma**: 블록 데이터 저장 (PostgreSQL)
+- **NCP Object Storage**: 미디어 저장
 
 ---
 
@@ -75,9 +76,9 @@
 ### 1. 관리자 로그인
 
 ```
-URL: yourname.artpage.kr/admin/login
+URL: yourname.monopage.kr/admin/login
 ID: admin@yourname.com
-PW: (Supabase Auth)
+PW: (Prisma/DB Auth)
 ```
 
 ### 2. 페이지 편집
@@ -197,8 +198,8 @@ export const HeroBlock = Node.create({
 2. 📋 기본 에디터 컴포넌트 생성
 3. 📋 커스텀 블록 확장 개발
 4. 📋 관리자 페이지 UI 구축
-5. 📋 Supabase 연동
-6. 📋 미디어 라이브러리
+5. 📋 Prisma/DB 연동
+6. 📋 미디어 라이브러리 (NCP)
 7. 📋 버전 관리
 
 ---

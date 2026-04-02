@@ -1,12 +1,12 @@
-# ArtPage Platform
+# Monopage Platform
 
 아티스트와 갤러리를 위한 웹사이트 플랫폼
 
 ## 프로젝트 구조
 
 ```
-artpage/
-├── src/app/                 # 메인 플랫폼 (artpage.kr)
+monopage/
+├── src/app/                 # 메인 플랫폼 (monopage.kr)
 │   ├── page.tsx            # 랜딩 페이지
 │   ├── templates/          # 템플릿 쇼케이스
 │   ├── pricing/            # 가격 정책
@@ -29,14 +29,14 @@ artpage/
 
 ### 서브도메인 시스템
 
-- `artpage.kr` - 메인 플랫폼
-- `bukchon.artpage.kr` - 북촌 아트 스페이스
-- `artist-name.artpage.kr` - 개인 아티스트
+- `monopage.kr` - 메인 플랫폼
+- `bukchon.monopage.kr` - 북촌 아트 스페이스
+- `artist-name.monopage.kr` - 개인 아티스트
 
 ## 기술 스택
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Backend**: Supabase (Auth, Database, Storage)
+- **Frontend**: Next.js 16, TypeScript, Tailwind CSS
+- **Backend**: PostgreSQL (Prisma), NCP Storage
 - **Payment**: Toss Payments
 - **Hosting**: Vercel
 
@@ -61,18 +61,17 @@ artpage/
 ### 로컬 실행
 
 ```bash
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
 ### 환경 변수
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-key
-NEXT_PUBLIC_TOSS_CLIENT_KEY=your-toss-key
+DATABASE_URL=your-database-url
+NEXT_PUBLIC_APP_URL=https://monopage.kr
 ```
 
 ## 라이선스
 
-Proprietary - ArtPage Platform
+Proprietary - Monopage Platform

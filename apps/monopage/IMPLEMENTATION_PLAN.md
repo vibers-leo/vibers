@@ -2,7 +2,7 @@
 
 ## User Objectives
 
-1.  Migrate `art-way` and `arthyun` projects (found in `public/asset`) into the main `artpage` project.
+1.  Migrate `art-way` and `arthyun` projects (found in `public/asset`) into the main `monopage` project.
 2.  Template-ize the layouts of these two projects so they can be reused.
 3.  Implement specific features: Exhibition Record, Art Shop, Press Release, Portfolio, Admin Functions.
 4.  Componentize Admin functions for reuse across artist pages.
@@ -13,7 +13,7 @@
 - [ ] **Phase 1: Analysis & Setup**
 
   - [x] Analyze directory structure of `art-way` and `arthyun`.
-  - [ ] Create necessary directories in `artpage` (`src/components/templates`, `src/actions`, `src/app/(artists)`).
+  - [ ] Create necessary directories in `monopage` (`src/components/templates`, `src/actions`, `src/app/(artists)`).
   - [ ] Verify dependency compatibility (Tailwind, Lucide, etc.).
 
 - [ ] **Phase 2: Component Migration (Template Creation)**
