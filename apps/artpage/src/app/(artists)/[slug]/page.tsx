@@ -31,6 +31,7 @@ async function MonopageHome({ slug }: { slug: string }) {
   const LinkButtons = (await import("@/components/LinkButtons")).default;
   const IntegratedFeed = (await import("@/components/IntegratedFeed")).default;
   const SupportSection = (await import("@/components/SupportSection")).default;
+  const { Instagram, Youtube, Globe } = await import("lucide-react");
 
   const siteSettings = await prisma.site_settings.findUnique({
     where: { site_slug: slug },
@@ -54,10 +55,44 @@ async function MonopageHome({ slug }: { slug: string }) {
           {siteSettings.site_name || slug}
         </h1>
         {(siteSettings as any).bio && (
-          <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-sm mx-auto" style={{ wordBreak: "keep-all" }}>
+          <p className="text-gray-500 text-sm mb-6 leading-relaxed max-w-xs mx-auto" style={{ wordBreak: "keep-all" }}>
             {(siteSettings as any).bio}
           </p>
         )}
+
+        {/* 소셜 아이콘 바 (자동 연동) */}
+        <div className="flex items-center justify-center gap-5 mb-10">
+          {siteSettings.instagram_url && (
+            <a 
+              href={siteSettings.instagram_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-pink-500 hover:bg-pink-50 transition-all duration-300"
+            >
+              <Instagram size={20} />
+            </a>
+          )}
+          {siteSettings.youtube_url && (
+            <a 
+              href={siteSettings.youtube_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300"
+            >
+              <Youtube size={20} />
+            </a>
+          )}
+          {siteSettings.blog_url && (
+            <a 
+              href={siteSettings.blog_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all duration-300"
+            >
+              <Globe size={20} />
+            </a>
+          )}
+        </div>
         
         {/* 링크 버튼 그리드 */}
         <div className="mb-12">

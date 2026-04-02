@@ -105,18 +105,6 @@ export default function CustomizePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* 헤더 */}
-      <header className="px-6 py-5 flex items-center justify-between border-b border-gray-100">
-        <Link
-          href="/create/select"
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-black transition-colors"
-        >
-          <ArrowLeft size={16} />
-          돌아가기
-        </Link>
-        <span className="text-sm text-gray-400">3/4 단계</span>
-      </header>
-
       <main className="flex-1 max-w-lg mx-auto w-full px-6 py-12">
         <h1 className="text-2xl font-semibold mb-2">사이트 정보 입력</h1>
         <p className="text-gray-500 mb-8">
@@ -158,29 +146,36 @@ export default function CustomizePage() {
             <label className="block text-sm font-medium mb-2">
               사이트 주소 <span className="text-red-400">*</span>
             </label>
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-black transition-colors">
-              <span className="px-4 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 whitespace-nowrap">
-                monopage.kr/
-              </span>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) =>
-                  setSlug(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, "-")
-                      .slice(0, 30)
-                  )
-                }
-                placeholder="my-gallery"
-                required
-                className="flex-1 px-4 py-3 focus:outline-none"
-              />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-black transition-colors">
+                <span className="px-4 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 whitespace-nowrap">
+                  monopage.kr/
+                </span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) =>
+                    setSlug(
+                      e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9-]/g, "-")
+                        .slice(0, 30)
+                    )
+                  }
+                  placeholder="my-gallery"
+                  required
+                  className="flex-1 px-4 py-3 focus:outline-none"
+                />
+              </div>
+              <div className="flex items-center justify-between px-1">
+                <p className="text-xs text-gray-400">
+                  {slug ? `${slug}.monopage.kr` : "슬러그.monopage.kr"} (자동 등록)
+                </p>
+                <p className="text-[10px] text-gray-300 font-light uppercase tracking-widest">
+                  Anytime accessible
+                </p>
+              </div>
             </div>
-            <p className="mt-1 text-xs text-gray-400">
-              영문 소문자, 숫자, 하이픈만 사용 가능
-            </p>
           </div>
 
           {/* SNS 링크 */}

@@ -6,13 +6,6 @@ const DOMAIN_MAP: Record<string, string> = {
   "www.arthyun.co.kr": "/arthyun",
 };
 
-// monopage.kr 서브도메인 → 슬러그 매핑
-// 예: arthyun.monopage.kr → /arthyun
-const MONOPAGE_SUBDOMAIN_MAP: Record<string, string> = {
-  arthyun: "/arthyun",
-  "art-way": "/art-way",
-  artway: "/art-way",
-};
 
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
@@ -29,17 +22,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. monopage.kr 서브도메인 라우팅 (arthyun.monopage.kr → /arthyun/...)
-  const monopageMatch = hostname.match(/^([^.]+)\.monopage\.kr$/);
-  if (monopageMatch) {
-    const subdomain = monopageMatch[1];
-    const slugPath = MONOPAGE_SUBDOMAIN_MAP[subdomain];
-    if (slugPath && !pathname.startsWith(slugPath)) {
-      const url = request.nextUrl.clone();
-      url.pathname = slugPath + (pathname === "/" ? "" : pathname);
-      return NextResponse.rewrite(url);
+  // 2. monopage.kr 동적 서브도메인 라우팅 (예: leo.monopage.kr → /leo)
+  const isMonopage = hostname.endsWith(".monopage.kr") || hostname === "monopage.kr";
+  
+  if (isMonopage && hostname !== "monopage.kr") {
+    const subdomain = hostname.split(".")[0];
+    
+    // 예약어 제외 (www 등)
+    const reservedSubdomains = ["www", "admin", "api", "create", "pricing", "features", "templates"];
+    
+    if (subdomain && !reservedSubdomains.includes(subdomain.toLowerCase())) {
+      // 내부적으로 /slug 로 리라이트. 
+      // Next.js (artists)/[slug] 가 이를 처리함
+      if (!pathname.startsWith(`/${subdomain}`)) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${subdomain}${pathname === "/" ? "" : pathname}`;
+        return NextResponse.rewrite(url);
+      }
     }
-    return NextResponse.next();
   }
 
   // 3. 세션 쿠키 가져오기
