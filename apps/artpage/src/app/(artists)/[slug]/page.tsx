@@ -39,6 +39,12 @@ async function MonopageHome({ slug }: { slug: string }) {
 
   if (!siteSettings) notFound();
 
+  // 업로드한 작품들 가져오기
+  const portfolios = await prisma.portfolio.findMany({
+    where: { site_slug: slug },
+    orderBy: { sort_order: 'asc' }
+  });
+
   return (
     <div className="bg-white min-h-screen pb-24">
       {/* 프로필 헤더 */}
@@ -95,10 +101,42 @@ async function MonopageHome({ slug }: { slug: string }) {
         </div>
         
         {/* 링크 버튼 그리드 */}
-        <div className="mb-12">
+        <div className="mb-16">
           <LinkButtons slug={slug} />
         </div>
       </div>
+
+      {/* 작품 갤러리 (업로드된 이미지 반영) */}
+      {portfolios.length > 0 && (
+        <div className="max-w-screen-xl mx-auto px-4 mb-24">
+          <div className="flex items-center gap-3 mb-10 px-2">
+            <div className="h-px flex-1 bg-gray-100" />
+            <h2 className="text-xs font-bold text-gray-300 uppercase tracking-widest">Selected Works</h2>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {portfolios.map((item, idx) => (
+              <div key={item.id} className="group relative">
+                <div className="aspect-[4/5] relative overflow-hidden rounded-2xl bg-gray-50 ring-1 ring-black/5">
+                  <Image
+                    src={item.image_url}
+                    alt={item.title || `Work ${idx + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  {/* 오버레이 */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                </div>
+                {item.title && !item.title.startsWith("작품 ") && (
+                  <h3 className="mt-4 text-sm font-medium text-gray-900">{item.title}</h3>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 통합 피드 */}
       {((siteSettings as any).show_instagram || (siteSettings as any).show_youtube) && (
