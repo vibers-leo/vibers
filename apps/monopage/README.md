@@ -75,3 +75,5 @@ NEXT_PUBLIC_APP_URL=https://monopage.kr
 ## 라이선스
 
 Proprietary - Monopage Platform
+
+# Redeploy Trigger: Monopage Branding Updated
