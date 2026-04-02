@@ -1,0 +1,76 @@
+{
+  "name": "vibers-remote",
+  "displayName": "Vibers Remote Coding",
+  "description": "Control VSCode from your mobile device with Vibers",
+  "version": "1.0.0",
+  "publisher": "verylabs",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "remote",
+    "mobile",
+    "vibers",
+    "ai",
+    "coding"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibers.connect",
+        "title": "Vibers: Connect to Mobile"
+      },
+      {
+        "command": "vibers.disconnect",
+        "title": "Vibers: Disconnect"
+      },
+      {
+        "command": "vibers.showStatus",
+        "title": "Vibers: Show Connection Status"
+      }
+    ],
+    "configuration": {
+      "title": "Vibers Remote",
+      "properties": {
+        "vibers.relayServer": {
+          "type": "string",
+          "default": "ws://localhost:3457",
+          "description": "Vibers Relay Server URL"
+        },
+        "vibers.autoConnect": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically connect to mobile on startup"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.x",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.47.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

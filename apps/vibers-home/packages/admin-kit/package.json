@@ -1,0 +1,10 @@
+{
+  "name": "@vibers/admin-kit",
+  "version": "1.0.0",
+  "description": "Vibers 통합 어드민 공통 패키지",
+  "main": "src/index.ts",
+  "dependencies": {
+    "lucide-react": "^0.475.0",
+    "recharts": "^2.15.1"
+  }
+}

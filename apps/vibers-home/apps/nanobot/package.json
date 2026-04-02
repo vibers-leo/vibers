@@ -1,0 +1,32 @@
+{
+  "name": "vibers-nanobot",
+  "version": "1.0.0",
+  "description": "나노바나나 이미지 생성 텔레그램 봇 - Gemini API 기반 AI 이미지 자동 생성",
+  "main": "src/bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "node --watch src/bot.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "gemini",
+    "image-generation",
+    "nanobanana",
+    "shopping-mall"
+  ],
+  "author": "nanobanana Team",
+  "license": "MIT",
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "dotenv": "^16.4.7",
+    "@google/generative-ai": "^0.19.0",
+    "crypto": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "typescript": "^5.9.3"
+  }
+}
