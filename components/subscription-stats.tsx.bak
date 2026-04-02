@@ -1,0 +1,183 @@
+'use client';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Image from 'next/image';
+import type { EnhancedSubscriptionStats } from '@/lib/subscription/types';
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { useEffect, useState } from 'react';
+import { getExchangeRates, convertCurrency, type ExchangeRates } from '@/lib/subscription/exchange-rate';
+
+interface SubscriptionStatsProps {
+  stats: EnhancedSubscriptionStats;
+}
+
+export function SubscriptionStatsComponent({ stats }: SubscriptionStatsProps) {
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRates | null>(null);
+
+  useEffect(() => {
+    async function loadExchangeRates() {
+      try {
+        const rates = await getExchangeRates();
+        setExchangeRates(rates);
+      } catch (error) {
+        console.error('[Stats] Failed to load exchange rates:', error);
+      }
+    }
+    loadExchangeRates();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: 'KRW',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getDaysUntilRenewal = () => {
+    if (!stats.nextRenewal) return null;
+
+    const today = new Date();
+    const renewal = new Date(stats.nextRenewal);
+    const diffTime = renewal.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  };
+
+  const daysUntilRenewal = getDaysUntilRenewal();
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-4">
+        {/* 월간 비용 */}
+        <Card className="bg-white border-brand/20 shadow-soft">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-body-md font-medium text-gray-600">
+              월간 비용
+            </CardTitle>
+            <Image src="/icons/카드.png" alt="카드" width={32} height={32} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-heading-md font-bold text-dark">
+              {formatCurrency(stats.totalMonthly)}
+            </div>
+            <p className="text-body-sm text-gray-500 mt-1">
+              평균 월 지출
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 연간 비용 */}
+        <Card className="bg-white border-brand/20 shadow-soft">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-body-md font-medium text-gray-600">
+              연간 비용
+            </CardTitle>
+            <Image src="/icons/차트.png" alt="차트" width={32} height={32} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-heading-md font-bold text-dark">
+              {formatCurrency(stats.totalYearly)}
+            </div>
+            <p className="text-body-sm text-gray-500 mt-1">
+              연간 예상 지출
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 활성 구독 */}
+        <Card className="bg-white border-brand/20 shadow-soft">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-body-md font-medium text-gray-600">
+              활성 구독
+            </CardTitle>
+            <Image src="/icons/목록.png" alt="목록" width={32} height={32} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-heading-md font-bold text-dark">
+              {stats.activeCount}
+            </div>
+            <p className="text-body-sm text-gray-500 mt-1">
+              구독 중인 서비스
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 다음 갱신 */}
+        <Card className="bg-white border-brand/20 shadow-soft">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-body-md font-medium text-gray-600">
+              다음 갱신
+            </CardTitle>
+            <Image src="/icons/캘린더.png" alt="캘린더" width={32} height={32} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-heading-md font-bold text-dark">
+              {daysUntilRenewal !== null ? `D-${daysUntilRenewal}` : '-'}
+            </div>
+            <p className="text-body-sm text-gray-500 mt-1 truncate">
+              {stats.nextRenewal
+                ? new Date(stats.nextRenewal).toLocaleDateString('ko-KR')
+                : '갱신 예정 없음'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Currency Breakdown */}
+      {stats.byCurrency && stats.byCurrency.length > 0 && (
+        <Card className="bg-white border-brand/20 shadow-soft">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <Image src="/icons/동전.png" alt="통화" width={20} height={20} />
+              통화별 분포
+            </CardTitle>
+            <div className="text-xs text-gray-500">
+              {stats.byCurrency.length}개 통화
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {stats.byCurrency.map((curr) => {
+                const inKRW = exchangeRates
+                  ? convertCurrency(curr.monthly, curr.currency, 'KRW', exchangeRates)
+                  : null;
+
+                return (
+                  <div key={curr.currency} className="p-3 rounded-lg bg-warm border border-brand/10">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-600">{curr.currency}</span>
+                      <span className="text-xs text-gray-500">{curr.count}개</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-lg font-bold text-dark font-mono truncate">
+                        {curr.currency === 'KRW'
+                          ? `₩${curr.monthly.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}`
+                          : curr.currency === 'USD'
+                          ? `$${curr.monthly.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+                          : curr.currency === 'EUR'
+                          ? `€${curr.monthly.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+                          : curr.currency === 'JPY'
+                          ? `¥${curr.monthly.toLocaleString('ja-JP', { maximumFractionDigits: 0 })}`
+                          : `${curr.monthly.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${curr.currency}`
+                        }
+                      </div>
+                      {curr.currency !== 'KRW' && inKRW !== null && (
+                        <div className="text-xs text-brand-700 truncate">
+                          ≈ ₩{Math.round(inKRW).toLocaleString('ko-KR')}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500">월간 비용</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

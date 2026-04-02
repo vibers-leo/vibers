@@ -1,0 +1,530 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from 'cmdk';
+import { Plus, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { toast } from 'sonner';
+import { createSubscription, updateSubscription } from '@/lib/subscription/firestore';
+import { filterServices } from '@/lib/subscription/search';
+import type { UserSubscription, ServicePlan, PaymentMethod, PaymentMethodType } from '@/lib/subscription/types';
+
+interface SubscriptionDialogProps {
+  subscription?: UserSubscription | null;
+  servicePlans: ServicePlan[];
+  trigger?: React.ReactNode;
+  onSuccess?: () => void;
+}
+
+export function SubscriptionDialog({
+  subscription,
+  servicePlans,
+  trigger,
+  onSuccess,
+}: SubscriptionDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isCustom, setIsCustom] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Form state
+  const [servicePlanId, setServicePlanId] = useState('');
+  const [customServiceName, setCustomServiceName] = useState('');
+  const [customPlanName, setCustomPlanName] = useState('');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly' | 'lifetime'>('monthly');
+  const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState('KRW');
+  const [startDate, setStartDate] = useState('');
+  const [renewalDate, setRenewalDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [status, setStatus] = useState<'active' | 'cancelled' | 'paused' | 'expired'>('active');
+
+  // Payment method state
+  const [paymentMethodType, setPaymentMethodType] = useState<PaymentMethodType | ''>('');
+  const [cardLast4, setCardLast4] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountHolder, setAccountHolder] = useState('');
+  const [paymentMemo, setPaymentMemo] = useState('');
+
+  // Initialize form with subscription data if editing
+  useEffect(() => {
+    if (subscription) {
+      setIsCustom(!subscription.service_plan_id);
+      setServicePlanId(subscription.service_plan_id || '');
+      setCustomServiceName(subscription.custom_service_name || '');
+      setCustomPlanName(subscription.custom_plan_name || '');
+      setBillingCycle(subscription.billing_cycle);
+      setPrice(subscription.price.toString());
+      setCurrency(subscription.currency);
+      setStartDate(subscription.start_date);
+      setRenewalDate(subscription.renewal_date);
+      setNotes(subscription.notes || '');
+      setStatus(subscription.status);
+
+      // Initialize payment method
+      if (subscription.payment_method) {
+        setPaymentMethodType(subscription.payment_method.type);
+        setCardLast4(subscription.payment_method.card_last4 || '');
+        setBankName(subscription.payment_method.bank_name || '');
+        setAccountHolder(subscription.payment_method.account_holder || '');
+        setPaymentMemo(subscription.payment_method.memo || '');
+      }
+    } else {
+      resetForm();
+    }
+  }, [subscription, open]);
+
+  const resetForm = () => {
+    setIsCustom(false);
+    setSearchQuery('');
+    setServicePlanId('');
+    setCustomServiceName('');
+    setCustomPlanName('');
+    setBillingCycle('monthly');
+    setPrice('');
+    setCurrency('KRW');
+    setStartDate(new Date().toISOString().split('T')[0]);
+    setRenewalDate('');
+    setNotes('');
+    setStatus('active');
+    setPaymentMethodType('');
+    setCardLast4('');
+    setBankName('');
+    setAccountHolder('');
+    setPaymentMemo('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Build payment method object
+      const paymentMethod: PaymentMethod | undefined = paymentMethodType
+        ? {
+            type: paymentMethodType as PaymentMethodType,
+            card_last4: cardLast4 || undefined,
+            bank_name: bankName || undefined,
+            account_holder: accountHolder || undefined,
+            memo: paymentMemo || undefined,
+          }
+        : undefined;
+
+      if (subscription) {
+        // Update existing subscription
+        await updateSubscription(subscription.id, {
+          custom_service_name: isCustom ? customServiceName : undefined,
+          custom_plan_name: isCustom ? customPlanName : undefined,
+          billing_cycle: billingCycle,
+          price: parseFloat(price),
+          currency,
+          renewal_date: renewalDate,
+          status,
+          notes,
+          payment_method: paymentMethod,
+        });
+      } else {
+        // Create new subscription
+        await createSubscription({
+          service_plan_id: !isCustom ? servicePlanId : undefined,
+          custom_service_name: isCustom ? customServiceName : undefined,
+          custom_plan_name: isCustom ? customPlanName : undefined,
+          billing_cycle: billingCycle,
+          price: parseFloat(price),
+          currency,
+          start_date: startDate,
+          renewal_date: renewalDate,
+          notes,
+          payment_method: paymentMethod,
+        });
+      }
+
+      toast.success(subscription ? '구독이 수정되었습니다.' : '구독이 추가되었습니다.');
+      setOpen(false);
+      resetForm();
+      onSuccess?.();
+    } catch (error: any) {
+      toast.error('오류 발생', { description: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-fill price when service plan is selected
+  const handleServicePlanChange = (value: string) => {
+    setServicePlanId(value);
+    const plan = servicePlans.find(p => p.id === value);
+    if (plan) {
+      setCurrency(plan.currency);
+      // Set price based on billing cycle
+      if (billingCycle === 'monthly' && plan.price_monthly) {
+        setPrice(plan.price_monthly.toString());
+      } else if (billingCycle === 'yearly' && plan.price_yearly) {
+        setPrice(plan.price_yearly.toString());
+      }
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button className="bg-brand hover:bg-brand-600 text-dark font-bold">
+            <Plus className="h-4 w-4 mr-2" />
+            새 구독 추가
+          </Button>
+        )}
+      </DialogTrigger>
+
+      <DialogContent className="bg-white border-brand/20 text-dark max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-dark">
+            {subscription ? '구독 수정' : '새 구독 추가'}
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
+            {subscription
+              ? '구독 정보를 수정합니다.'
+              : '새로운 구독 서비스를 추가합니다.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6 py-4">
+          {/* Service Selection */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-gray-700">
+              서비스 선택
+            </Label>
+            <RadioGroup
+              value={isCustom ? 'custom' : 'plan'}
+              onValueChange={(value) => setIsCustom(value === 'custom')}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="plan" id="plan" />
+                <Label htmlFor="plan" className="text-gray-600 font-normal cursor-pointer">
+                  기존 플랜 선택
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="custom" id="custom" />
+                <Label htmlFor="custom" className="text-gray-600 font-normal cursor-pointer">
+                  직접 입력
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {!isCustom ? (
+            <div className="space-y-2">
+              <Label htmlFor="service_plan">플랜 선택</Label>
+              <Command className="rounded-xl border border-brand/20 bg-warm">
+                <CommandInput
+                  placeholder="서비스 검색 (예: Netflix, YouTube...)..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  className="bg-transparent border-0"
+                />
+                <CommandList className="max-h-[200px]">
+                  <CommandEmpty className="py-8 text-center">
+                    <div className="space-y-3">
+                      <Image
+                        src="/icons/세모폰 기본.png"
+                        alt="검색 결과 없음"
+                        width={60}
+                        height={60}
+                        className="mx-auto opacity-50"
+                      />
+                      <p className="text-sm text-gray-600">검색 결과가 없습니다.</p>
+                    </div>
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {filterServices(searchQuery, servicePlans).map((plan) => {
+                      const isSelected = servicePlanId === plan.id;
+                      return (
+                        <CommandItem
+                          key={plan.id}
+                          value={plan.id}
+                          onSelect={() => handleServicePlanChange(plan.id)}
+                          className={`cursor-pointer ${isSelected ? 'bg-brand text-dark' : ''}`}
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{plan.service_name}</div>
+                              <div className="text-xs text-gray-600 truncate">{plan.plan_name}</div>
+                            </div>
+                            {isSelected && (
+                              <div className="text-dark shrink-0">✓</div>
+                            )}
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="custom_service">서비스명</Label>
+                <Input
+                  id="custom_service"
+                  value={customServiceName}
+                  onChange={(e) => setCustomServiceName(e.target.value)}
+                  placeholder="예: Netflix"
+                  className="bg-warm border-brand/20"
+                  required={isCustom}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="custom_plan">플랜명</Label>
+                <Input
+                  id="custom_plan"
+                  value={customPlanName}
+                  onChange={(e) => setCustomPlanName(e.target.value)}
+                  placeholder="예: Premium"
+                  className="bg-warm border-brand/20"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Billing Cycle */}
+          <div className="space-y-2">
+            <Label>결제 주기</Label>
+            <RadioGroup value={billingCycle} onValueChange={(value: any) => setBillingCycle(value)}>
+              <div className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="monthly" id="monthly" />
+                  <Label htmlFor="monthly" className="font-normal cursor-pointer">월간</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yearly" id="yearly" />
+                  <Label htmlFor="yearly" className="font-normal cursor-pointer">연간</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="lifetime" id="lifetime" />
+                  <Label htmlFor="lifetime" className="font-normal cursor-pointer">평생</Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Price and Currency */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="price">가격</Label>
+              <Input
+                id="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="0"
+                className="bg-warm border-brand/20"
+                required
+                step="0.01"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="currency">통화</Label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger className="bg-warm border-brand/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-brand/20">
+                  <SelectItem value="KRW">KRW</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                  <SelectItem value="JPY">JPY</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-4">
+            {!subscription && (
+              <div className="space-y-2">
+                <Label htmlFor="start_date">시작일</Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-warm border-brand/20"
+                  required
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="renewal_date">갱신일</Label>
+              <Input
+                id="renewal_date"
+                type="date"
+                value={renewalDate}
+                onChange={(e) => setRenewalDate(e.target.value)}
+                className="bg-warm border-brand/20"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Status (only for editing) */}
+          {subscription && (
+            <div className="space-y-2">
+              <Label htmlFor="status">상태</Label>
+              <Select value={status} onValueChange={(value: any) => setStatus(value)}>
+                <SelectTrigger className="bg-warm border-brand/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-brand/20">
+                  <SelectItem value="active">활성</SelectItem>
+                  <SelectItem value="cancelled">취소됨</SelectItem>
+                  <SelectItem value="paused">일시중지</SelectItem>
+                  <SelectItem value="expired">만료됨</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Payment Method */}
+          <div className="space-y-3 pt-2 border-t border-brand/10">
+            <Label className="text-sm font-medium text-gray-700">
+              결제 방법 (선택사항)
+            </Label>
+            <Select value={paymentMethodType} onValueChange={(value: any) => setPaymentMethodType(value)}>
+              <SelectTrigger className="bg-warm border-brand/20">
+                <SelectValue placeholder="결제 방법 선택" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-brand/20">
+                <SelectItem value="credit_card">신용카드</SelectItem>
+                <SelectItem value="debit_card">체크카드</SelectItem>
+                <SelectItem value="bank_transfer">계좌이체</SelectItem>
+                <SelectItem value="paypal">PayPal</SelectItem>
+                <SelectItem value="apple_pay">Apple Pay</SelectItem>
+                <SelectItem value="google_pay">Google Pay</SelectItem>
+                <SelectItem value="kakao_pay">Kakao Pay</SelectItem>
+                <SelectItem value="naver_pay">Naver Pay</SelectItem>
+                <SelectItem value="toss">Toss</SelectItem>
+                <SelectItem value="other">기타</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Conditional fields based on payment method type */}
+            {(paymentMethodType === 'credit_card' || paymentMethodType === 'debit_card') && (
+              <div className="space-y-2">
+                <Label htmlFor="card_last4">카드 마지막 4자리</Label>
+                <Input
+                  id="card_last4"
+                  value={cardLast4}
+                  onChange={(e) => setCardLast4(e.target.value)}
+                  placeholder="1234"
+                  maxLength={4}
+                  className="bg-warm border-brand/20"
+                />
+              </div>
+            )}
+
+            {paymentMethodType === 'bank_transfer' && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bank_name">은행명</Label>
+                  <Input
+                    id="bank_name"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    placeholder="예: 국민은행"
+                    className="bg-warm border-brand/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="account_holder">예금주</Label>
+                  <Input
+                    id="account_holder"
+                    value={accountHolder}
+                    onChange={(e) => setAccountHolder(e.target.value)}
+                    placeholder="예: 홍길동"
+                    className="bg-warm border-brand/20"
+                  />
+                </div>
+              </div>
+            )}
+
+            {paymentMethodType && (
+              <div className="space-y-2">
+                <Label htmlFor="payment_memo">결제 방법 메모</Label>
+                <Input
+                  id="payment_memo"
+                  value={paymentMemo}
+                  onChange={(e) => setPaymentMemo(e.target.value)}
+                  placeholder="예: 개인카드, 회사카드 등"
+                  className="bg-warm border-brand/20"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label htmlFor="notes">메모 (선택사항)</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="구독 관련 메모를 입력하세요"
+              className="bg-warm border-brand/20 min-h-[80px]"
+            />
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="border-brand/30"
+              disabled={loading}
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              className="bg-brand hover:bg-brand-600 text-dark font-bold"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  처리 중...
+                </>
+              ) : subscription ? (
+                '수정하기'
+              ) : (
+                '추가하기'
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

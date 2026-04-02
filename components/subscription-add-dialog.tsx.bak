@@ -1,0 +1,416 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "cmdk";
+import { toast } from "sonner";
+
+// AI Recipe Firebase functions (already imported in subscription/page.tsx)
+import { createSubscription, updateSubscription } from "@/lib/subscription/firestore";
+
+interface SubscriptionAddDialogProps {
+  subscription?: any;
+  servicePlans: any[];
+  trigger?: React.ReactNode;
+  onSuccess?: () => void;
+}
+
+export function SubscriptionAddDialog({
+  subscription,
+  servicePlans,
+  trigger,
+  onSuccess,
+}: SubscriptionAddDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isCustom, setIsCustom] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Form state
+  const [servicePlanId, setServicePlanId] = useState("");
+  const [customServiceName, setCustomServiceName] = useState("");
+  const [customPlanName, setCustomPlanName] = useState("");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly" | "lifetime">("monthly");
+  const [price, setPrice] = useState("");
+  const [currency, setCurrency] = useState("KRW");
+  const [startDate, setStartDate] = useState("");
+  const [renewalDate, setRenewalDate] = useState("");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (!subscription && !open) {
+      resetForm();
+    }
+  }, [subscription, open]);
+
+  const resetForm = () => {
+    setIsCustom(false);
+    setSearchQuery("");
+    setServicePlanId("");
+    setCustomServiceName("");
+    setCustomPlanName("");
+    setBillingCycle("monthly");
+    setPrice("");
+    setCurrency("KRW");
+    setStartDate(new Date().toISOString().split('T')[0]);
+    setRenewalDate("");
+    setNotes("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await createSubscription({
+        service_plan_id: !isCustom ? servicePlanId : undefined,
+        custom_service_name: isCustom ? customServiceName : undefined,
+        custom_plan_name: isCustom ? customPlanName : undefined,
+        billing_cycle: billingCycle,
+        price: parseFloat(price),
+        currency,
+        start_date: startDate,
+        renewal_date: renewalDate,
+        notes,
+      });
+
+      toast.success("구독이 추가되었습니다! 🎉");
+      setOpen(false);
+      resetForm();
+      onSuccess?.();
+    } catch (error: any) {
+      toast.error("오류 발생", { description: error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleServicePlanChange = (value: string) => {
+    setServicePlanId(value);
+    const plan = servicePlans.find(p => p.id === value);
+    if (plan) {
+      setCurrency(plan.currency);
+      if (billingCycle === "monthly" && plan.price_monthly) {
+        setPrice(plan.price_monthly.toString());
+      } else if (billingCycle === "yearly" && plan.price_yearly) {
+        setPrice(plan.price_yearly.toString());
+      }
+    }
+  };
+
+  const filterServices = (query: string, plans: any[]) => {
+    if (!query.trim()) return plans.slice(0, 20);
+
+    const lowerQuery = query.toLowerCase();
+    return plans.filter(plan =>
+      plan.service_name?.toLowerCase().includes(lowerQuery) ||
+      plan.plan_name?.toLowerCase().includes(lowerQuery)
+    ).slice(0, 20);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button variant="secondary" size="lg">
+            ➕ 직접 추가
+          </Button>
+        )}
+      </DialogTrigger>
+
+      <DialogContent className="bg-white border-brand/20 text-dark max-w-5xl max-h-[90vh] overflow-hidden">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/icons/세모폰 기본.png"
+              alt="세모구독"
+              width={48}
+              height={48}
+              className="drop-shadow-brand"
+            />
+            <div>
+              <DialogTitle className="text-2xl">
+                새 구독 추가
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                구독 서비스를 선택하고 정보를 입력하세요 ✨
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 py-4 overflow-hidden">
+          {/* Left Panel - Service Selection */}
+          <div className="md:w-2/5 space-y-4 md:border-r md:border-brand/20 md:pr-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+            {/* Service Selection Type */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <span>🔍</span> 서비스 선택
+              </Label>
+              <RadioGroup
+                value={isCustom ? "custom" : "plan"}
+                onValueChange={(value) => setIsCustom(value === "custom")}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="plan" id="plan" />
+                  <Label htmlFor="plan" className="text-gray-600 font-normal cursor-pointer">
+                    기존 플랜 선택
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="custom" id="custom" />
+                  <Label htmlFor="custom" className="text-gray-600 font-normal cursor-pointer">
+                    직접 입력
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {!isCustom ? (
+              <div className="space-y-2">
+                <Label htmlFor="service_plan">플랜 선택</Label>
+                <Command className="rounded-lg border-2 border-brand/20 bg-warm/30">
+                  <CommandInput
+                    placeholder="서비스 검색 (예: 넷플릭스, ChatGPT)..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                    className="bg-transparent border-0"
+                  />
+                  <CommandList className="max-h-[400px]">
+                    <CommandEmpty className="py-8 text-center">
+                      <p className="text-sm text-gray-500">검색 결과가 없습니다 😢</p>
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {filterServices(searchQuery, servicePlans).map((plan) => {
+                        const isSelected = servicePlanId === plan.id;
+                        return (
+                          <CommandItem
+                            key={plan.id}
+                            value={plan.id}
+                            onSelect={() => handleServicePlanChange(plan.id)}
+                            className={`cursor-pointer rounded-md my-1 ${
+                              isSelected ? 'bg-brand text-white' : 'hover:bg-warm'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 w-full">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">{plan.service_name}</div>
+                                <div className="text-xs opacity-70 truncate">{plan.plan_name}</div>
+                              </div>
+                              {isSelected && (
+                                <div className="text-white shrink-0">✓</div>
+                              )}
+                            </div>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="custom_service">서비스명</Label>
+                  <Input
+                    id="custom_service"
+                    value={customServiceName}
+                    onChange={(e) => setCustomServiceName(e.target.value)}
+                    placeholder="예: OpenAI"
+                    className="border-brand/20 focus:border-brand"
+                    required={isCustom}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="custom_plan">플랜명</Label>
+                  <Input
+                    id="custom_plan"
+                    value={customPlanName}
+                    onChange={(e) => setCustomPlanName(e.target.value)}
+                    placeholder="예: Plus"
+                    className="border-brand/20 focus:border-brand"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Selected Service Preview */}
+            {servicePlanId && !isCustom && (
+              <div className="mt-4 p-4 rounded-lg bg-gradient-to-br from-brand/10 to-yellow-400/10 border-2 border-brand/30 shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <Image
+                    src="/icons/카드.png"
+                    alt="선택된 서비스"
+                    width={40}
+                    height={40}
+                  />
+                  <div className="flex-1">
+                    <div className="font-bold text-dark">
+                      {servicePlans.find(p => p.id === servicePlanId)?.service_name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {servicePlans.find(p => p.id === servicePlanId)?.plan_name}
+                    </div>
+                  </div>
+                </div>
+                {servicePlans.find(p => p.id === servicePlanId)?.description && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {servicePlans.find(p => p.id === servicePlanId)?.description}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel - Subscription Details */}
+          <div className="md:w-3/5 space-y-5 overflow-y-auto max-h-[calc(90vh-180px)]">
+            {/* Section Title */}
+            <div className="flex items-center gap-2 pb-2 border-b-2 border-brand/20">
+              <span className="text-xl">📝</span>
+              <h3 className="text-lg font-bold text-dark">구독 세부 정보</h3>
+            </div>
+
+            {/* Billing Cycle */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <span>🔁</span> 결제 주기
+              </Label>
+              <RadioGroup value={billingCycle} onValueChange={(value: any) => setBillingCycle(value)}>
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly" className="font-normal cursor-pointer">월간</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yearly" id="yearly" />
+                    <Label htmlFor="yearly" className="font-normal cursor-pointer">연간</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="lifetime" id="lifetime" />
+                    <Label htmlFor="lifetime" className="font-normal cursor-pointer">평생</Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Price and Currency */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="price" className="flex items-center gap-2">
+                  <span>💰</span> 가격
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0"
+                  className="border-brand/20 focus:border-brand"
+                  required
+                  step="0.01"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="currency">통화</Label>
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger className="border-brand/20 focus:border-brand">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="KRW">₩ KRW</SelectItem>
+                    <SelectItem value="USD">$ USD</SelectItem>
+                    <SelectItem value="EUR">€ EUR</SelectItem>
+                    <SelectItem value="JPY">¥ JPY</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="start_date" className="flex items-center gap-2">
+                  <span>📅</span> 시작일
+                </Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border-brand/20 focus:border-brand"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="renewal_date" className="flex items-center gap-2">
+                  <span>🔄</span> 갱신일
+                </Label>
+                <Input
+                  id="renewal_date"
+                  type="date"
+                  value={renewalDate}
+                  onChange={(e) => setRenewalDate(e.target.value)}
+                  className="border-brand/20 focus:border-brand"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="flex items-center gap-2">
+                <span>📌</span> 메모 (선택사항)
+              </Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="구독 관련 메모를 입력하세요"
+                className="border-brand/20 focus:border-brand min-h-[80px]"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-4 border-t-2 border-brand/20">
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={() => setOpen(false)}
+                disabled={loading}
+              >
+                취소
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+              >
+                {loading ? "처리 중..." : "추가하기"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
