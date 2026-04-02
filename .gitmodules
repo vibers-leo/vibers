@@ -55,3 +55,6 @@
 [submodule "apps/whymove"]
     path = apps/whymove
     url = https://github.com/vibers-leo/whymove.git
+[submodule "apps/agency-landing"]
+    path = apps/agency-landing
+    url = https://github.com/vibers-leo/agency-landing.git
