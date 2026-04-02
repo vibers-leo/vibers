@@ -1,0 +1,60 @@
+[submodule "apps/agency-landing"]
+    path = apps/agency-landing
+    url = https://github.com/vibers-leo/agency-landing.git
+[submodule "apps/ai-recipe"]
+    path = apps/ai-recipe
+    url = https://github.com/vibers-leo/Airecipe.git
+[submodule "apps/aiwar"]
+    path = apps/aiwar
+    url = https://github.com/vibers-leo/aiwar.git
+[submodule "apps/art-way"]
+    path = apps/art-way
+    url = https://github.com/vibers-leo/art-way.git
+[submodule "apps/arthyun"]
+    path = apps/arthyun
+    url = https://github.com/vibers-leo/arthyun.git
+[submodule "apps/everyones-ai"]
+    path = apps/everyones-ai
+    url = https://github.com/vibers-leo/everyones-ai.git
+[submodule "apps/faneasy"]
+    path = apps/faneasy
+    url = https://github.com/vibers-leo/faneasy.git
+[submodule "apps/goodzz"]
+    path = apps/goodzz
+    url = https://github.com/vibers-leo/myaiprintshop.git
+[submodule "apps/kess"]
+    path = apps/kess
+    url = https://github.com/vibers-leo/kess.git
+[submodule "apps/lightstar"]
+    path = apps/lightstar
+    url = https://github.com/vibers-leo/lightstar.git
+[submodule "apps/my-next-guide"]
+    path = apps/my-next-guide
+    url = https://github.com/vibers-leo/my-next-guide.git
+[submodule "apps/myratingis"]
+    path = apps/myratingis
+    url = https://github.com/vibers-leo/myratingis.git
+[submodule "apps/oceantechlab"]
+    path = apps/oceantechlab
+    url = https://github.com/vibers-leo/oceantech.git
+[submodule "apps/premiumpage"]
+    path = apps/premiumpage
+    url = https://github.com/vibers-leo/premiumpage.git
+[submodule "apps/richlychee"]
+    path = apps/richlychee
+    url = https://github.com/vibers-leo/richlychee.git
+[submodule "apps/semophone"]
+    path = apps/semophone
+    url = https://github.com/vibers-leo/semophone.git
+[submodule "apps/vibefolio-app"]
+    path = apps/vibefolio-app
+    url = https://github.com/vibers-leo/vibefolio-app.git
+[submodule "apps/vibefolio-nextjs"]
+    path = apps/vibefolio-nextjs
+    url = https://github.com/vibers-leo/vibefolio-nextjs-src.git
+[submodule "apps/vibers"]
+    path = apps/vibers
+    url = https://github.com/vibers-leo/vibers-app.git
+[submodule "apps/whymove"]
+    path = apps/whymove
+    url = https://github.com/vibers-leo/whymove.git
