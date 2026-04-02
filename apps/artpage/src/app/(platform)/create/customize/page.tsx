@@ -20,14 +20,42 @@ export default function CustomizePage() {
   const [blog, setBlog] = useState("");
   const [youtube, setYoutube] = useState("");
 
-  // 세션에서 템플릿 로드
+  // 쿠키 읽기 헬퍼
+  const getCookie = (name: string) => {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(';').shift() || "");
+    return null;
+  };
+
+  // 데이터 로드 (세션 및 인스타그램 쿠키)
   useEffect(() => {
-    const t = sessionStorage.getItem("monopage_create_template");
+    let t = sessionStorage.getItem("monopage_create_template");
+    
+    // 온보딩 모드인 경우 기본 템플릿 설정
     if (!t) {
-      router.replace("/create/select");
-      return;
+      t = "monopage";
+      sessionStorage.setItem("monopage_create_template", t);
     }
     setTemplate(t);
+
+    // 인스타그램 쿠키 데이터 확인
+    const igName = getCookie("monopage_onboarding_name");
+    const igImagesRaw = getCookie("monopage_instagram_images");
+
+    if (igName) {
+      setArtistName(igName);
+      setInstagram(`https://instagram.com/${igName}`);
+    }
+    if (igImagesRaw) {
+      try {
+        const urls = JSON.parse(igImagesRaw);
+        sessionStorage.setItem("monopage_create_images", JSON.stringify(urls));
+      } catch (e) {
+        console.error("IG Images parse error", e);
+      }
+    }
   }, [router]);
 
   // 이름에서 자동 slug 생성

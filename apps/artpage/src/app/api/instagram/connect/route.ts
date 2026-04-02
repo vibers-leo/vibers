@@ -3,12 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUrl } from "@/lib/instagram";
 
 export async function GET(request: NextRequest) {
-  const siteSlug = request.nextUrl.searchParams.get("site_slug");
+  const searchParams = request.nextUrl.searchParams;
+  const siteSlug = searchParams.get("site_slug") || searchParams.get("instagram_id") || "new-user";
+  const mode = searchParams.get("mode") || "connect";
 
-  if (!siteSlug) {
-    return NextResponse.json({ error: "site_slug 필수" }, { status: 400 });
-  }
-
-  const authUrl = getAuthUrl(siteSlug);
+  const authUrl = getAuthUrl(siteSlug, mode);
   return NextResponse.redirect(authUrl);
 }

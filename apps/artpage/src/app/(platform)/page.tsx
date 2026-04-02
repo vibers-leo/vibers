@@ -1,6 +1,7 @@
 // src/app/(platform)/page.tsx — monopage.kr 매니페스토 랜딩 페이지
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -17,6 +18,8 @@ import {
 import LiveStats from "@/components/LiveStats";
 
 export default function PlatformHomePage() {
+  const [instagramId, setInstagramId] = useState("");
+
   return (
     <div
       className="bg-white text-gray-900 relative overflow-hidden"
@@ -62,33 +65,37 @@ export default function PlatformHomePage() {
                 관리는 쉽게, 서포트는 자유롭게.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <Link
-                  href="/create"
-                  className="group relative px-8 py-4 bg-gray-900 text-white text-base font-semibold rounded-full overflow-hidden transition-all hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-black/10"
-                  style={{
-                    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    실험에 참여하기
-                    <ArrowRight
-                      size={18}
-                      className="group-hover:translate-x-1 transition-transform"
+              <div className="max-w-md">
+                <div className="relative group/input">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-pink-500 rounded-[24px] blur opacity-25 group-hover/input:opacity-50 transition duration-1000 group-focus-within/input:opacity-100"></div>
+                  <div className="relative flex items-center bg-white border border-gray-200 rounded-[20px] p-1.5 shadow-xl shadow-black/5">
+                    <div className="flex items-center gap-2 pl-4 text-gray-400">
+                      <Instagram size={18} />
+                      <span className="text-sm font-light hidden sm:inline whitespace-nowrap">instagram.com/</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="username"
+                      value={instagramId}
+                      onChange={(e) => setInstagramId(e.target.value)}
+                      className="w-full bg-transparent border-none focus:ring-0 text-gray-900 placeholder:text-gray-300 px-2 py-3 text-base"
                     />
-                  </span>
-                </Link>
-
-                <Link
-                  href="/arthyun"
-                  className="group px-8 py-4 text-base font-medium border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 transition-all flex items-center gap-2 rounded-full"
-                >
-                  데모 보기
-                  <ArrowUpRight
-                    size={16}
-                    className="group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform"
-                  />
-                </Link>
+                    <button
+                      onClick={() => {
+                        if (!instagramId.trim()) return;
+                        // 인스타그램 주소 통째로 넣었을 경우 처리
+                        const cleanId = instagramId.replace(/https?:\/\/(www\.)?instagram\.com\//, "").replace(/\//g, "");
+                        window.location.href = `/api/instagram/connect?mode=onboarding&instagram_id=${cleanId}`;
+                      }}
+                      className="px-6 py-3 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 transition-all whitespace-nowrap"
+                    >
+                      시작하기
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-gray-400 pl-2 font-light">
+                  인스타그램 주소만으로 1분 만에 포트폴리오 완성
+                </p>
               </div>
 
               {/* 컴팩트 통계 */}

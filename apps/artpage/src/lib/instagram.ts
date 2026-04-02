@@ -1,18 +1,22 @@
 // Instagram Graph API 클라이언트
 // OAuth 2.0 + 미디어 조회 + 토큰 갱신
 
-const INSTAGRAM_APP_ID = process.env.INSTAGRAM_APP_ID!;
-const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET!;
-const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || "https://monopage.vibers.co.kr/api/instagram/callback";
+const INSTAGRAM_APP_ID = process.env.INSTAGRAM_CLIENT_ID || process.env.INSTAGRAM_APP_ID!;
+const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_CLIENT_SECRET || process.env.INSTAGRAM_APP_SECRET!;
+const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || 
+                    (process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/instagram/callback` : "https://monopage.kr/api/instagram/callback");
 
 // ── OAuth 인증 URL 생성 ──
-export function getAuthUrl(siteSlug: string): string {
+export function getAuthUrl(siteSlug: string, mode: string = "connect"): string {
+  // state에 정보를 압축해서 전달 (JSON stringify -> base64 등도 좋지만 일단 구분자 사용)
+  const state = JSON.stringify({ slug: siteSlug, mode });
+  
   const params = new URLSearchParams({
     client_id: INSTAGRAM_APP_ID,
     redirect_uri: REDIRECT_URI,
     scope: "instagram_business_basic,instagram_business_content_publish",
     response_type: "code",
-    state: siteSlug, // site_slug를 state로 전달
+    state: state,
   });
   return `https://www.instagram.com/oauth/authorize?${params.toString()}`;
 }
