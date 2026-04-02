@@ -1,6 +1,3 @@
-[submodule "apps/agency-landing"]
-    path = apps/agency-landing
-    url = https://github.com/vibers-leo/agency-landing.git
 [submodule "apps/ai-recipe"]
     path = apps/ai-recipe
     url = https://github.com/vibers-leo/Airecipe.git
