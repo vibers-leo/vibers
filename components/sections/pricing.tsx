@@ -107,10 +107,10 @@ export default function PricingSection() {
         {/* 유지관리 서비스 */}
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-2 leading-snug">
-            유지관리 서비스
+            협업 플랜
           </h3>
           <p className="text-sm text-white/40 mb-8">
-            사장님의 기술 파트너 — 매주 계획서/보고서 송부 공통
+            사장님의 기술 파트너 — 협업 시작 후 매주 계획서/보고서 송부 공통
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export default function PricingSection() {
 
         <p className="mt-5 text-xs text-white/25">
           * 매월 결제액의 1.2배 크레딧이 지급되며, 크레딧은 한도 없이 매월 이월됩니다.<br />
-          * 언제든 원하실 때 구독을 취소할 수 있습니다.
+          * 언제든 원하실 때 협업을 종료할 수 있습니다.
         </p>
 
         {/* 단건 의뢰 — 더블 베젤 */}
