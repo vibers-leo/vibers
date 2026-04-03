@@ -34,15 +34,17 @@ export default function Nav() {
   };
 
   return (
-    <header
-      className={`fixed top-0 z-50 w-full transition-all duration-700 ${
-        scrolled
-          ? 'top-3 mx-auto max-w-5xl left-1/2 -translate-x-1/2 rounded-2xl border border-white/10 bg-[rgba(10,10,10,0.8)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
-          : 'border-b border-[rgba(57,255,20,0.1)] bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl'
-      }`}
-      style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+    <header className="fixed top-0 z-50 w-full">
+      {/* 실제 네비바 — 스크롤 시 안쪽에서 라운딩만 */}
+      <div
+        className={`mx-auto transition-all duration-500 ${
+          scrolled
+            ? 'mt-3 max-w-5xl rounded-2xl border border-white/10 bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-4 lg:mx-auto'
+            : 'max-w-full border-b border-[rgba(57,255,20,0.08)] bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl'
+        }`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+      >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="h-8 w-8 rounded-lg bg-[#39FF14] flex items-center justify-center text-sm font-black text-black">
@@ -122,7 +124,7 @@ export default function Nav() {
 
       {/* 모바일 메뉴 */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-[rgba(57,255,20,0.1)] bg-[rgba(10,10,10,0.95)] backdrop-blur-xl">
+        <div className={`md:hidden border-t border-[rgba(57,255,20,0.1)] bg-[rgba(10,10,10,0.95)] backdrop-blur-xl ${scrolled ? 'rounded-b-2xl' : ''}`}>
           <div className="px-6 py-4 flex flex-col gap-4">
             {navLinks.map((link) => (
               <button
@@ -163,6 +165,7 @@ export default function Nav() {
           </div>
         </div>
       )}
+      </div>
     </header>
   );
 }
