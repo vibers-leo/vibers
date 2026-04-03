@@ -105,18 +105,9 @@ export default function DefinitionSection() {
           viewport={{ once: true }}
           transition={{ ...springTransition, delay: 0.3 }}
         >
-          <div className="rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/10">
-            <div className="rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] overflow-hidden"
-                 style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
-              {/* 출처 헤더 */}
-              <div className="flex items-center gap-2 px-6 pt-5 pb-4">
-                <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
-                  📺 KBS 뉴스
-                </span>
-                <span className="text-[11px] text-white/25">미디어 스크랩 · 박대기 기자</span>
-                <span className="ml-auto text-[11px] text-white/20">AI가 사무실을 바꾼다 — '기발자'의 등장</span>
-              </div>
-              {/* 16:9 반응형 영상 */}
+          <div className="flex flex-col sm:flex-row items-start gap-5">
+            {/* 영상 — 절반 너비 */}
+            <div className="w-full sm:w-1/2 rounded-2xl overflow-hidden ring-1 ring-white/10 shrink-0">
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                 <iframe
                   className="absolute inset-0 h-full w-full"
@@ -126,6 +117,25 @@ export default function DefinitionSection() {
                   allowFullScreen
                 />
               </div>
+            </div>
+
+            {/* 텍스트 */}
+            <div className="flex flex-col justify-center gap-2 py-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
+                  📺 KBS 뉴스
+                </span>
+                <span className="text-[11px] text-white/25">박대기 기자</span>
+              </div>
+              <p className="text-sm font-semibold text-white/60 break-keep">
+                AI가 사무실을 바꾼다 — '기발자'의 등장
+              </p>
+              <p className="text-sm text-white/35 leading-relaxed break-keep">
+                <span className="text-[#39FF14] font-black mr-0.5">"</span>
+                기획과 개발을 같이 한다고 해서 '기발자'라고 부릅니다.
+                아예 세 가지 일을 한 명이 하는 경우도 생겼습니다.
+                <span className="text-[#39FF14] font-black ml-0.5">"</span>
+              </p>
             </div>
           </div>
         </motion.div>
