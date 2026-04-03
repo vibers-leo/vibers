@@ -1,0 +1,21 @@
+:root {
+  --admin-bg: #FAFAFA;
+  --admin-sidebar: #FFFFFF;
+  --admin-card: #FFFFFF;
+  --admin-accent: #0673E2;
+  --admin-accent-hover: #0559B3;
+  --admin-text: #212121;
+  --admin-text-muted: #666666;
+  --admin-border: #E5E7EB;
+  --admin-success: #27AE60;
+  --admin-warning: #F39C12;
+  --admin-danger: #E74C3C;
+  --admin-radius: 12px;
+  --admin-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Force light mode body override for admin area */
+body:has(#admin-root) {
+  background-color: var(--admin-bg) !important;
+  color: var(--admin-text) !important;
+}
