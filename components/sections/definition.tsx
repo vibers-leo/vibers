@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Lightbulb, Palette, Code2, Megaphone } from 'lucide-react';
+import { Lightbulb, Palette, Code2, Megaphone, ExternalLink } from 'lucide-react';
 
 const capabilities = [
   {
@@ -105,9 +105,9 @@ export default function DefinitionSection() {
           viewport={{ once: true }}
           transition={{ ...springTransition, delay: 0.3 }}
         >
-          <div className="flex flex-col sm:flex-row items-start gap-5">
-            {/* 영상 — 절반 너비 */}
-            <div className="w-full sm:w-1/2 rounded-2xl overflow-hidden ring-1 ring-white/10 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch gap-5">
+            {/* 영상 — 60% */}
+            <div className="w-full sm:w-[60%] rounded-2xl overflow-hidden ring-1 ring-white/10 shrink-0">
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                 <iframe
                   className="absolute inset-0 h-full w-full"
@@ -119,24 +119,47 @@ export default function DefinitionSection() {
               </div>
             </div>
 
-            {/* 텍스트 */}
-            <div className="flex flex-col justify-center gap-2 py-1">
-              <div className="flex items-center gap-2">
+            {/* 텍스트 — 40% */}
+            <a
+              href="https://news.kbs.co.kr/news/pc/view/view.do?ncd=8520973"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex-1 flex flex-col justify-between rounded-2xl ring-1 ring-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:ring-[rgba(57,255,20,0.25)] hover:bg-white/[0.05]"
+            >
+              {/* 출처 */}
+              <div className="flex items-center gap-2 mb-4">
                 <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
                   📺 KBS 뉴스
                 </span>
                 <span className="text-[11px] text-white/25">박대기 기자</span>
               </div>
-              <p className="text-sm font-semibold text-white/60 break-keep">
-                AI가 사무실을 바꾼다 — '기발자'의 등장
+
+              {/* 제목 */}
+              <p className="text-base font-bold text-white/80 break-keep leading-snug mb-4">
+                AI가 사무실을 바꾼다<br />— '기발자'의 등장
               </p>
-              <p className="text-sm text-white/35 leading-relaxed break-keep">
-                <span className="text-[#39FF14] font-black mr-0.5">"</span>
-                기획과 개발을 같이 한다고 해서 '기발자'라고 부릅니다.
-                아예 세 가지 일을 한 명이 하는 경우도 생겼습니다.
-                <span className="text-[#39FF14] font-black ml-0.5">"</span>
+
+              {/* 인용 1 */}
+              <p className="text-sm text-white/45 leading-relaxed break-keep mb-3">
+                <span className="text-[#39FF14] font-black text-lg mr-0.5">"</span>
+                기획과 개발을 같이 한다고 해서 <span className="text-white/70 font-semibold">'기발자'</span>라고 부릅니다.
+                아예 기획자·개발자·디자이너 세 가지 일을 한 명이 하는 경우도 생겼습니다.
+                <span className="text-[#39FF14] font-black text-lg ml-0.5">"</span>
               </p>
-            </div>
+
+              {/* 인용 2 */}
+              <p className="text-sm text-white/35 leading-relaxed break-keep mb-5">
+                <span className="text-[#39FF14] font-black text-lg mr-0.5">"</span>
+                예전 같으면 분리돼서 작업을 했었다면 이제는 한 AI 공간에서 저희가 같이 작업을 하고 있습니다.
+                <span className="text-[#39FF14] font-black text-lg ml-0.5">"</span>
+              </p>
+
+              {/* 클릭 유도 */}
+              <div className="flex items-center gap-1.5 text-xs text-white/20 group-hover:text-[#39FF14] transition-colors mt-auto">
+                <ExternalLink className="w-3 h-3" />
+                기사 원문 보기
+              </div>
+            </a>
           </div>
         </motion.div>
 
