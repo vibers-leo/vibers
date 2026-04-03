@@ -10,3 +10,7 @@ export { collectReport, pushReport } from './core/reporter';
 export type { ProjectReport } from './core/reporter';
 
 export { GET, POST } from './routes/handler';
+
+export { createEntityHandler } from './routes/entity-handler';
+export { queryInquiries, queryUsers, queryOrders, queryStats } from './firebase/queries';
+export type { InquiryRow, UserRow, OrderRow, StatsRow } from './firebase/queries';
