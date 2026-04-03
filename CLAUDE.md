@@ -49,6 +49,44 @@ bun run build --filter=semophone     # 특정 앱만 빌드
 - 커밋 메시지: 한글 (feat:, fix:, refactor:, chore: 접두사)
 - 디자인: @vibers/design-system 토큰 우선 사용
 
+## ⚠️ 구조 변경 / 마이그레이션 시 절대 금지 사항
+
+> **2026-04-03 사고 기록**: Expo 작업 중 `refactor: structured migration` 커밋으로 Next.js를 루트로 이동하면서  
+> `apps/faneasy/app/sites/[site]/page.tsx` 및 수십 개 컴포넌트가 단순화된 버전으로 덮어씌워졌다.  
+> cpr, oluolu, bizon, yahwa 등 실운영 사이트 전체가 404 또는 빈 페이지로 수 시간 노출됨.
+
+### 구조 변경 시 필수 체크리스트
+
+**1. 파일 이동/복사 전 반드시 확인**
+- `git log --oneline -- <파일경로>` 로 해당 파일의 커밋 히스토리 확인
+- 단순히 "새 폴더로 복사"하면 기존 로직이 단순화된 버전으로 덮어씌워질 수 있음
+- 특히 `page.tsx` 같은 핵심 라우팅 파일은 **절대 새로 생성하지 말고 기존 파일을 그대로 이동**
+
+**2. faneasy `app/sites/[site]/page.tsx` 는 건드리지 마라**
+- 이 파일은 Firebase/Firestore 연동 + 수십 개 사이트별 컴포넌트를 조건부 import하는 복잡한 구조
+- Expo/모바일 작업과 **완전히 무관**하므로 절대 수정하지 않는다
+- 참조 커밋: `5e621e1` (안정 버전)
+
+**3. 마이그레이션 작업 후 배포 전 검증 필수**
+```bash
+# 실운영 사이트 접속 확인 (최소 3개)
+curl -s -o /dev/null -w "%{http_code}" https://cpr.faneasy.kr/
+curl -s -o /dev/null -w "%{http_code}" https://oluolu.faneasy.kr/
+curl -s -o /dev/null -w "%{http_code}" https://bizon.faneasy.kr/
+# 200 또는 308 이어야 함. 404는 사고
+```
+
+**4. `git add .` 금지 — 항상 파일 단위로 스테이징**
+- 구조 변경 작업 중 `git add .` 사용 시 의도치 않은 파일이 포함될 수 있음
+- 반드시 `git add <특정 파일 또는 폴더>` 사용
+
+**5. Expo ↔ Next.js 파일 경계 명확히**
+- `mobile/` 또는 `apps/*/mobile/` 폴더 = Expo 전용
+- `app/`, `components/`, `lib/` 루트 폴더 = Next.js 전용
+- 두 영역의 파일을 절대 혼용하거나 덮어쓰지 않는다
+
+---
+
 ## 세션로그 기록 (필수)
 **모든 개발 세션의 주요 대화 내용을 반드시 기록한다.**
 
