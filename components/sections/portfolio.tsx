@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { feedItems, typeLabel, type FeedItem } from '@/lib/feed-data';
+import { feedItems, typeLabel, getClient, type FeedItem } from '@/lib/feed-data';
 import NewsModal from '@/components/news-modal';
 
 const INITIAL_COUNT = 6;
@@ -91,10 +91,18 @@ export default function PortfolioSection() {
                       {item.title}
                     </h3>
 
-                    {/* 브랜드 */}
-                    {item.brand && (
-                      <p className="mt-1 text-xs text-white/30">by {item.brand}</p>
-                    )}
+                    {/* 클라이언트 */}
+                    {(() => {
+                      const c = getClient(item.clientId);
+                      return c ? (
+                        <p className="mt-1 text-xs text-white/30">
+                          {c.name}
+                          <span className="ml-1.5 opacity-50">
+                            {c.type === 'internal' ? '· 자체' : '· 고객사'}
+                          </span>
+                        </p>
+                      ) : null;
+                    })()}
 
                     {/* 본문 */}
                     <p className="mt-3 text-sm text-white/40 leading-relaxed flex-1 break-keep">
