@@ -7,7 +7,7 @@ import { feedItems, typeLabel, getClient, type FeedItem } from '@/lib/feed-data'
 import NewsModal from '@/components/news-modal';
 import OgImage from '@/components/og-image';
 
-const INITIAL_COUNT = 6;
+const INITIAL_COUNT = 20;
 
 const springTransition = {
   type: 'spring' as const,
@@ -30,7 +30,7 @@ export default function PortfolioSection() {
   return (
     <>
       <section id="news" className="py-24 md:py-32 lg:py-40 border-t border-[rgba(57,255,20,0.08)]">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-screen-2xl px-6">
           {/* 헤더 */}
           <motion.div
             initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
@@ -66,10 +66,10 @@ export default function PortfolioSection() {
                 >
                   <div className="h-full rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] flex flex-col overflow-hidden"
                        style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
-                    {/* OG 이미지 — url 있는 카드만 */}
-                    {item.url && (
+                    {/* OG 이미지 — url 또는 image 있는 카드만 */}
+                    {(item.url || item.image) && (
                       <div className="relative w-full aspect-video shrink-0 overflow-hidden">
-                        <OgImage url={item.url} color={item.color} alt={item.title} />
+                        <OgImage url={item.url} image={item.image} color={item.color} alt={item.title} />
                         {/* 하단 페이드 */}
                         <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[rgba(15,15,15,0.9)] to-transparent" />
                       </div>
@@ -77,7 +77,7 @@ export default function PortfolioSection() {
 
                     <div className="p-6 flex flex-col flex-1">
                     {/* 상단 컬러 바 — 이미지 없을 때만 */}
-                    {!item.url && (
+                    {!item.url && !item.image && (
                       <div
                         className="mb-4 h-1 w-10 rounded-full shrink-0"
                         style={{ backgroundColor: item.color }}

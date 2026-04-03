@@ -33,6 +33,7 @@ export interface FeedItem {
   fullBody?: string;   // 모달 상세 본문
   tag: string;
   url?: string;
+  image?: string;  // OG 없을 때 보여줄 첨부 이미지 URL (세로 포스터 가능)
   color: string;
   size: 'sm' | 'md' | 'lg';
   timeline?: TimelineEvent[];
