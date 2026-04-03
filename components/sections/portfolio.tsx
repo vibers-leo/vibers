@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { feedItems, typeLabel, getClient, type FeedItem } from '@/lib/feed-data';
 import NewsModal from '@/components/news-modal';
+import OgImage from '@/components/og-image';
 
 const INITIAL_COUNT = 6;
 
@@ -63,13 +64,25 @@ export default function PortfolioSection() {
                   className={`group relative w-full text-left rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/10 transition-all duration-500 hover:ring-[rgba(57,255,20,0.3)] hover:shadow-[0_0_40px_rgba(57,255,20,0.08)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${minHeightMap[item.size]}`}
                   style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
                 >
-                  <div className="h-full rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] p-6 flex flex-col"
+                  <div className="h-full rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] flex flex-col overflow-hidden"
                        style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
-                    {/* 상단 컬러 바 */}
-                    <div
-                      className="mb-4 h-1 w-10 rounded-full shrink-0"
-                      style={{ backgroundColor: item.color }}
-                    />
+                    {/* OG 이미지 — url 있는 카드만 */}
+                    {item.url && (
+                      <div className="relative w-full h-36 shrink-0 overflow-hidden">
+                        <OgImage url={item.url} color={item.color} alt={item.title} />
+                        {/* 하단 페이드 */}
+                        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[rgba(15,15,15,0.9)] to-transparent" />
+                      </div>
+                    )}
+
+                    <div className="p-6 flex flex-col flex-1">
+                    {/* 상단 컬러 바 — 이미지 없을 때만 */}
+                    {!item.url && (
+                      <div
+                        className="mb-4 h-1 w-10 rounded-full shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
+                    )}
 
                     {/* 타입 뱃지 + 날짜 */}
                     <div className="flex items-center gap-2 mb-3">
@@ -116,6 +129,7 @@ export default function PortfolioSection() {
                         자세히 →
                       </span>
                     </div>
+                    </div>{/* p-6 wrapper 닫기 */}
                   </div>
                 </button>
               </motion.div>
