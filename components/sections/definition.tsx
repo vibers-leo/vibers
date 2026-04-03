@@ -124,14 +124,19 @@ export default function DefinitionSection() {
                     <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
                       📰 KBS 뉴스
                     </span>
-                    <span className="text-[11px] text-white/25">미디어 스크랩</span>
+                    <span className="text-[11px] text-white/25">미디어 스크랩 · 박대기 기자</span>
                   </div>
+
+                  {/* 기사 제목 */}
+                  <p className="text-xs font-semibold text-white/40 mb-3 break-keep">
+                    AI가 사무실을 바꾼다 — '기발자'의 등장
+                  </p>
 
                   {/* 인용구 */}
                   <p className="text-base sm:text-lg font-medium text-white/70 leading-relaxed break-keep">
                     <span className="text-[#39FF14] text-2xl font-black leading-none mr-1">"</span>
-                    한 사람이 기획·디자인·개발·마케팅을 모두 수행하는 멀티플레이어형 인재가
-                    스타트업과 1인 기업 생태계를 바꾸고 있다.
+                    기획과 개발을 같이 한다고 해서 <span className="text-white/90 font-bold">'기발자'</span>라고 부릅니다.
+                    아예 기획자·개발자·디자이너 세 가지 일을 한 명이 하는 경우도 생겼습니다.
                     <span className="text-[#39FF14] text-2xl font-black leading-none ml-1">"</span>
                   </p>
 
