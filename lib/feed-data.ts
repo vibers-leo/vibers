@@ -70,6 +70,7 @@ export const clients: Client[] = [
     type: 'external',
     color: '#FF6B6B',
     description: '중고폰 거래 플랫폼',
+    url: 'https://semophone.co.kr',
   },
   {
     id: 'wero',
@@ -187,6 +188,7 @@ export const feedItems: FeedItem[] = [
     body: '중고폰 거래 플랫폼 세모폰의 웹 서비스를 구축했습니다.',
     fullBody: '중고폰 거래 플랫폼 세모폰의 웹 서비스를 기획부터 개발까지 함께했습니다. 판매자와 구매자를 잇는 매칭 플로우와 시세 조회 기능이 핵심이었습니다.',
     tag: '#플랫폼 #중고거래',
+    url: 'https://semophone.co.kr',
     color: '#FF6B6B',
     size: 'md',
     timeline: [
