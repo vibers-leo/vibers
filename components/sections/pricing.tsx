@@ -71,10 +71,22 @@ const managementPlans = [
   },
 ];
 
-const singleProjects = [
-  { name: '인프라 구축 자문', price: '50만원~' },
-  { name: 'Web 구축', price: '100만원~' },
-  { name: 'App 구축', price: '500만원~' },
+const sprintProjects = [
+  {
+    name: '기술 자문',
+    sub: '아키텍처 리뷰, 스택 선정, 1회 컨설팅',
+    price: '30만원~',
+  },
+  {
+    name: '웹 프로젝트',
+    sub: '랜딩페이지, 기업사이트, 서비스 웹',
+    price: '100만원~',
+  },
+  {
+    name: '앱 프로젝트',
+    sub: 'iOS / Android, Expo 크로스플랫폼',
+    price: '500만원~',
+  },
 ];
 
 const springTransition = {
@@ -100,7 +112,7 @@ export default function PricingSection() {
           </span>
           <h2 className="text-4xl font-black leading-snug tracking-tight md:text-5xl">가격</h2>
           <p className="mt-3 text-white/30 break-keep">
-            월 관리비부터 단건 의뢰까지
+            지속 협업부터 단기 프로젝트까지
           </p>
         </motion.div>
 
@@ -223,7 +235,7 @@ export default function PricingSection() {
           * 언제든 원하실 때 협업을 종료할 수 있습니다.
         </p>
 
-        {/* 단건 의뢰 — 더블 베젤 */}
+        {/* 스프린트 협업 */}
         <motion.div
           initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -234,20 +246,24 @@ export default function PricingSection() {
           <div className="rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/10">
             <div className="rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] p-8"
                  style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
-              <h3 className="text-xl font-bold mb-6 leading-snug">단건 의뢰</h3>
+              <div className="mb-6">
+                <h3 className="text-xl font-bold leading-snug">스프린트 협업</h3>
+                <p className="mt-1 text-sm text-white/30">매월 고정이 부담스럽다면 — 필요한 만큼만</p>
+              </div>
               <div className="grid gap-4 sm:grid-cols-3">
-                {singleProjects.map((item) => (
+                {sprintProjects.map((item) => (
                   <div
                     key={item.name}
-                    className="flex items-center justify-between border-b border-white/5 pb-4 sm:border-0 sm:pb-0 sm:flex-col sm:items-start sm:gap-2"
+                    className="rounded-2xl bg-white/[0.03] ring-1 ring-white/8 p-5 flex flex-col gap-2"
                   >
-                    <span className="text-white/60 text-sm">{item.name}</span>
-                    <span className="font-bold text-white text-lg">{item.price}</span>
+                    <span className="text-base font-bold text-white">{item.name}</span>
+                    <span className="text-xs text-white/30 leading-relaxed">{item.sub}</span>
+                    <span className="mt-auto pt-3 text-xl font-black text-[#39FF14]">{item.price}</span>
                   </div>
                 ))}
               </div>
-              <p className="mt-6 text-xs text-white/25">
-                * 규모/복잡도에 따라 변동 가능
+              <p className="mt-5 text-xs text-white/25">
+                * 규모·복잡도에 따라 변동 가능
               </p>
               <button
                 onClick={() => {
@@ -256,7 +272,7 @@ export default function PricingSection() {
                 className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 py-4 text-sm font-bold transition-all duration-500 hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]"
                 style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
               >
-                프로젝트 문의하기
+                협업 문의하기
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </span>
