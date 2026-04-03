@@ -86,7 +86,7 @@ const springTransition = {
 export default function PricingSection() {
   return (
     <section id="pricing" className="py-24 md:py-32 lg:py-40 border-t border-[rgba(57,255,20,0.08)]">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -114,7 +114,7 @@ export default function PricingSection() {
         </div>
 
         {/* 3열 프리미엄 카드 */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {managementPlans.map((plan, i) => (
             <motion.div
               key={plan.name}
