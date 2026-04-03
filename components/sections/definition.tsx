@@ -129,6 +129,17 @@ export default function DefinitionSection() {
             </div>
           </div>
         </motion.div>
+
+        {/* 마무리 문구 */}
+        <motion.p
+          initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          viewport={{ once: true }}
+          transition={{ ...springTransition, delay: 0.15 }}
+          className="mt-8 text-right text-sm text-white/25 tracking-wide"
+        >
+          우리는 이미 계발자들로 활동하고 있습니다.
+        </motion.p>
       </div>
     </section>
   );
