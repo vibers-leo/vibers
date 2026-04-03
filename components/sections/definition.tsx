@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Lightbulb, Palette, Code2, Megaphone, ExternalLink } from 'lucide-react';
+import { Lightbulb, Palette, Code2, Megaphone } from 'lucide-react';
 
 const capabilities = [
   {
@@ -53,7 +53,7 @@ export default function DefinitionSection() {
             Definition
           </span>
           <h2 className="text-4xl font-black leading-snug tracking-tight md:text-5xl">
-            계발자란?
+            계발자들?
           </h2>
           <p className="mt-3 max-w-xl text-white/30 break-keep leading-relaxed">
             디자인 · 마케팅 · 개발 · 기획,
@@ -98,58 +98,36 @@ export default function DefinitionSection() {
           })}
         </div>
 
-        {/* KBS 기사 스크랩 카드 */}
+        {/* KBS 뉴스 유튜브 임베드 */}
         <motion.div
           initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           viewport={{ once: true }}
           transition={{ ...springTransition, delay: 0.3 }}
         >
-          <a
-            href="https://news.kbs.co.kr/news/pc/view/view.do?ncd=8520973"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/10 transition-all duration-500 hover:ring-[rgba(57,255,20,0.25)] hover:shadow-[0_0_40px_rgba(57,255,20,0.06)]"
-            style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-          >
-            <div className="rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] p-6 sm:p-8"
+          <div className="rounded-[2rem] bg-white/5 p-1.5 ring-1 ring-white/10">
+            <div className="rounded-[calc(2rem-0.375rem)] bg-[rgba(255,255,255,0.03)] overflow-hidden"
                  style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
-              <div className="flex items-start gap-6">
-                {/* 수직 컬러 바 */}
-                <div className="hidden sm:block w-1 self-stretch rounded-full bg-[#39FF14] shrink-0 opacity-60" />
-
-                <div className="flex-1 min-w-0">
-                  {/* 출처 뱃지 */}
-                  <div className="mb-3 flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
-                      📰 KBS 뉴스
-                    </span>
-                    <span className="text-[11px] text-white/25">미디어 스크랩 · 박대기 기자</span>
-                  </div>
-
-                  {/* 기사 제목 */}
-                  <p className="text-xs font-semibold text-white/40 mb-3 break-keep">
-                    AI가 사무실을 바꾼다 — '기발자'의 등장
-                  </p>
-
-                  {/* 인용구 */}
-                  <p className="text-base sm:text-lg font-medium text-white/70 leading-relaxed break-keep">
-                    <span className="text-[#39FF14] text-2xl font-black leading-none mr-1">"</span>
-                    기획과 개발을 같이 한다고 해서 <span className="text-white/90 font-bold">'기발자'</span>라고 부릅니다.
-                    아예 기획자·개발자·디자이너 세 가지 일을 한 명이 하는 경우도 생겼습니다.
-                    <span className="text-[#39FF14] text-2xl font-black leading-none ml-1">"</span>
-                  </p>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-white/25">
-                      KBS 뉴스 · 원문 기사 보기
-                    </p>
-                    <ExternalLink className="h-4 w-4 text-white/20 transition-colors duration-300 group-hover:text-[#39FF14]" />
-                  </div>
-                </div>
+              {/* 출처 헤더 */}
+              <div className="flex items-center gap-2 px-6 pt-5 pb-4">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(57,255,20,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#39FF14]">
+                  📺 KBS 뉴스
+                </span>
+                <span className="text-[11px] text-white/25">미디어 스크랩 · 박대기 기자</span>
+                <span className="ml-auto text-[11px] text-white/20">AI가 사무실을 바꾼다 — '기발자'의 등장</span>
+              </div>
+              {/* 16:9 반응형 영상 */}
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute inset-0 h-full w-full"
+                  src="https://www.youtube.com/embed/duPaK-uxC7o?start=7"
+                  title="KBS 뉴스 — AI가 사무실을 바꾼다, 기발자의 등장"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
             </div>
-          </a>
+          </div>
         </motion.div>
       </div>
     </section>
