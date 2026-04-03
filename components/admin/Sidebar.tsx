@@ -4,9 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   Home, Users, ShoppingCart, Settings, Palette, LineChart, Server,
-  ChevronDown, ChevronRight, Menu, Globe, Shield, CreditCard, ChevronLeft
+  ChevronDown, ChevronRight, Menu, Globe, Shield, CreditCard, ChevronLeft, Newspaper
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -52,6 +52,14 @@ const imwebMenus: MenuCategory[] = [
     subItems: [
       { label: "디자인 모드", href: "/admin/design" },
       { label: "팝업/배너 관리", href: "/admin/marketing/popups" }
+    ]
+  },
+  {
+    title: "소식 관리",
+    icon: <Newspaper className="w-[18px] h-[18px]" />,
+    subItems: [
+      { label: "소식 목록", href: "/admin/news" },
+      { label: "새 소식 작성", href: "/admin/news/new" },
     ]
   },
   {
