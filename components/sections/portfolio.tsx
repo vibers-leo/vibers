@@ -68,7 +68,7 @@ export default function PortfolioSection() {
                        style={{ boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.08)' }}>
                     {/* OG 이미지 — url 있는 카드만 */}
                     {item.url && (
-                      <div className="relative w-full h-36 shrink-0 overflow-hidden">
+                      <div className="relative w-full aspect-video shrink-0 overflow-hidden">
                         <OgImage url={item.url} color={item.color} alt={item.title} />
                         {/* 하단 페이드 */}
                         <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[rgba(15,15,15,0.9)] to-transparent" />
