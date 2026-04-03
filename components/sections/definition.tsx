@@ -136,7 +136,7 @@ export default function DefinitionSection() {
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           viewport={{ once: true }}
           transition={{ ...springTransition, delay: 0.15 }}
-          className="mt-8 text-right text-sm text-white/25 tracking-wide"
+          className="mt-8 text-right text-base font-semibold text-white/60"
         >
           우리는 이미 계발자들로 활동하고 있습니다.
         </motion.p>
