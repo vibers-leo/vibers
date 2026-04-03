@@ -39,7 +39,7 @@ export default function Nav() {
       <div
         className={`mx-auto transition-all duration-500 ${
           scrolled
-            ? 'mt-3 max-w-5xl rounded-2xl border border-white/10 bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-4 lg:mx-auto'
+            ? 'mt-3 max-w-7xl rounded-2xl border border-white/10 bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-4 xl:mx-auto'
             : 'max-w-full border-b border-[rgba(57,255,20,0.08)] bg-[rgba(10,10,10,0.85)] backdrop-blur-2xl'
         }`}
         style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
