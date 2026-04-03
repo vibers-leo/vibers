@@ -56,7 +56,7 @@ export default function HeroSection() {
             className="bg-clip-text text-transparent"
             style={{ backgroundImage: "linear-gradient(135deg, #39FF14, #00FFAA)" }}
           >
-            계발자들을 활용
+            계발자들과 협업
           </span>
           하세요.
         </motion.h1>
@@ -93,12 +93,12 @@ export default function HeroSection() {
           </button>
           <button
             onClick={() => {
-              document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+              document.getElementById('news')?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="group inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-8 py-4 text-base font-bold backdrop-blur-sm transition-all duration-500 hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]"
             style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
-            포트폴리오 보기
+            소식 보기
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
               <ArrowDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
             </span>

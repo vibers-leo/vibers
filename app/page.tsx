@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/nav";
 import HeroSection from "@/components/sections/hero";
+import DefinitionSection from "@/components/sections/definition";
 import PortfolioSection from "@/components/sections/portfolio";
 import ServicesSection from "@/components/sections/services";
 import PricingSection from "@/components/sections/pricing";
@@ -25,6 +26,7 @@ export default function HomePage() {
       </div>
       <Nav />
       <HeroSection />
+      <DefinitionSection />
       <PortfolioSection />
       <ServicesSection />
       <PricingSection />
