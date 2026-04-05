@@ -128,7 +128,6 @@ export const PROJECT_MENUS: Record<string, ProjectMenuConfig> = {
       { label: "사용자 관리", href: "/admin/myratingis/users", icon: Users, externalUrl: "https://myratingis.com/admin/users" },
     ],
   },
-};
 
   // ── Rails 앱 ──
 
