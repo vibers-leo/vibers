@@ -1,18 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
-import { User, Bell, Search, LayoutDashboard, ChevronDown, Check } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { User, Bell, Search, LayoutDashboard, ChevronDown, Check, Globe } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
+import { VIBERS_PROJECTS_REGISTRY } from "@/lib/admin/aggregator";
+
+const TOTAL_PROJECT = { slug: "total", name: "전체 대시보드", group: "" };
 
 export default function Header() {
-  const { currentProject, setCurrentProject, availableProjects } = useProject();
+  const { currentProject, setCurrentProject } = useProject();
   const [isProjectOpen, setIsProjectOpen] = useState(false);
+
+  const grouped = useMemo(() => {
+    const map: Record<string, typeof VIBERS_PROJECTS_REGISTRY> = {};
+    for (const p of VIBERS_PROJECTS_REGISTRY) {
+      if (!map[p.group]) map[p.group] = [];
+      map[p.group].push(p);
+    }
+    return map;
+  }, []);
 
   return (
     <header className="h-16 flex items-center justify-between px-6 bg-[var(--admin-card)] border-b border-[var(--admin-border)] shrink-0 z-10 sticky top-0">
       <div className="flex items-center gap-4">
         <div className="relative">
-          <button 
+          <button
             onClick={() => setIsProjectOpen(!isProjectOpen)}
             className="flex items-center gap-2 bg-[var(--admin-bg)] px-3 py-1.5 rounded-lg border border-[var(--admin-border)] hover:border-[var(--admin-accent)] transition-colors"
           >
@@ -22,24 +34,48 @@ export default function Header() {
           </button>
 
           {isProjectOpen && (
-            <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-[var(--admin-border)] rounded-xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2">
-              <div className="px-3 py-1.5 text-[11px] font-bold text-[var(--admin-text-muted)] uppercase tracking-wider">프로젝트 전환</div>
-              {availableProjects.map((project) => (
-                <button
-                  key={project.slug}
-                  onClick={() => {
-                    setCurrentProject(project);
-                    setIsProjectOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[var(--admin-bg)] transition-colors group"
-                >
-                  <span className={`${currentProject.slug === project.slug ? 'text-[var(--admin-accent)] font-bold' : 'text-[var(--admin-text)]'}`}>
-                    {project.name}
+            <div className="absolute top-full left-0 mt-1 w-60 bg-white border border-[var(--admin-border)] rounded-xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2 max-h-[80vh] overflow-y-auto">
+              {/* 전체 대시보드 */}
+              <button
+                onClick={() => { setCurrentProject(TOTAL_PROJECT as any); setIsProjectOpen(false); }}
+                className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[var(--admin-bg)] transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-indigo-500" />
+                  <span className={currentProject.slug === "total" ? "text-[var(--admin-accent)] font-bold" : "text-[var(--admin-text)]"}>
+                    전체 대시보드
                   </span>
-                  {currentProject.slug === project.slug && (
-                    <Check className="w-3.5 h-3.5 text-[var(--admin-accent)]" />
-                  )}
-                </button>
+                </span>
+                {currentProject.slug === "total" && <Check className="w-3.5 h-3.5 text-[var(--admin-accent)]" />}
+              </button>
+
+              <div className="my-1 border-t border-[var(--admin-border)]" />
+
+              {/* 그룹별 */}
+              {Object.entries(grouped).map(([group, projects]) => (
+                <div key={group}>
+                  <div className="px-3 py-1.5 text-[10px] font-black text-[var(--admin-text-muted)] uppercase tracking-[0.15em]">
+                    — {group} —
+                  </div>
+                  {projects.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setCurrentProject({ slug: p.id, name: p.name, domain: p.domain, apiUrl: p.adminApiUrl } as any);
+                        setIsProjectOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-[var(--admin-bg)] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: p.color ?? "#94a3b8" }} />
+                        <span className={currentProject.slug === p.id ? "text-[var(--admin-accent)] font-bold" : "text-[var(--admin-text)]"}>
+                          {p.name}
+                        </span>
+                      </span>
+                      {currentProject.slug === p.id && <Check className="w-3.5 h-3.5 text-[var(--admin-accent)]" />}
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           )}
