@@ -9,13 +9,25 @@ import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
 import { ProjectProvider } from "@/context/ProjectContext";
 
+const SUPER_ADMINS = [
+  'designd@designd.co.kr',
+  'juuuno@naver.com',
+  'juuuno1116@gmail.com',
+  'duscontactus@gmail.com',
+  'designdlab@designdlab.co.kr',
+];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (!SUPER_ADMINS.includes(user.email ?? '')) {
+        router.push('/');
+      }
     }
   }, [user, loading, router]);
 
@@ -27,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!user) return null;
+  if (!user || !SUPER_ADMINS.includes(user.email ?? '')) return null;
 
   return (
     <ProjectProvider>
