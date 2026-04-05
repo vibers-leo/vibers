@@ -27,7 +27,7 @@ export const VIBERS_PROJECTS_REGISTRY: ProjectEntry[] = [
   { id: "nusucheck", name: "누수체크", group: "Rails", adminApiUrl: "https://nusucheck.vibers.co.kr/api/vibers_admin", domain: "nusucheck.com", color: "#2563eb" },
   { id: "matecheck", name: "메이트체크", group: "Rails", adminApiUrl: "https://matecheck.vibers.co.kr/api/vibers_admin", domain: "matecheck.vibers.co.kr", color: "#7c3aed" },
   { id: "runnersconnect", name: "러너스커넥트", group: "Rails", adminApiUrl: "https://runnersconnect.vibers.co.kr/api/vibers_admin", domain: "runnersconnect.vibers.co.kr", color: "#0891b2" },
-  { id: "wayo", name: "와요/가보자고", group: "Rails", adminApiUrl: "https://gabojago.vibers.co.kr/api/vibers_admin", domain: "wayo.co.kr", color: "#d97706" },
+  { id: "wayo", name: "와요/가보자고", group: "Rails", adminApiUrl: "https://wayo-api.vibers.co.kr/api/vibers_admin", domain: "wayo.co.kr", color: "#d97706" },
 ];
 
 export type AggregatedProject = VibersAdminResponse & {
