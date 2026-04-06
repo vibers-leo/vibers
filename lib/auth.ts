@@ -110,4 +110,48 @@ export async function upsertUser(googleUser: {
   return { id: u.id, email: u.email, name: u.name, avatarUrl: u.avatar_url, role: u.role };
 }
 
+// Naver OAuth URL 생성
+export function getNaverAuthUrl(state?: string): string {
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: process.env.NAVER_CLIENT_ID!,
+    redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://vibers.co.kr"}/api/auth/callback/naver`,
+    state: state ?? Math.random().toString(36).slice(2),
+  });
+  return `https://nid.naver.com/oauth2.0/authorize?${params}`;
+}
+
+// Naver code → 사용자 정보 교환
+export async function exchangeNaverCode(code: string, state: string): Promise<{
+  email: string;
+  name: string;
+  profile_image: string;
+  id: string;
+} | null> {
+  try {
+    const tokenRes = await fetch("https://nid.naver.com/oauth2.0/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: process.env.NAVER_CLIENT_ID!,
+        client_secret: process.env.NAVER_CLIENT_SECRET!,
+        redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://vibers.co.kr"}/api/auth/callback/naver`,
+        code,
+        state,
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return null;
+
+    const userRes = await fetch("https://openapi.naver.com/v1/nid/me", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const userData = await userRes.json();
+    return userData.response ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export { COOKIE_NAME };
