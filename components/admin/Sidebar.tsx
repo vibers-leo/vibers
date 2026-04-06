@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, Users, ShoppingCart, Settings, Palette, LineChart, Server,
   ChevronDown, ChevronRight, Menu, Globe, ChevronLeft, Newspaper,
-  ExternalLink
+  ExternalLink, Activity
 } from "lucide-react";
 import { useProject } from "@/context/ProjectContext";
 import { PROJECT_MENUS } from "@/lib/admin/project-menus";
@@ -28,6 +28,7 @@ interface MenuCategory {
 
 const globalMenus: MenuCategory[] = [
   { title: "대시보드", href: "/admin", icon: <Home className="w-[18px] h-[18px]" /> },
+  { title: "활동 로그", href: "/admin/activity", icon: <Activity className="w-[18px] h-[18px]" /> },
   {
     title: "사용자",
     icon: <Users className="w-[18px] h-[18px]" />,
