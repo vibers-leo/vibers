@@ -6,6 +6,7 @@ export type StoragePlatform =
   | 'nusucheck'
   | 'runnersconnect'
   | 'artpage'
+  | 'vibers-home'
   | 'common';
 
 export type StorageCategory =

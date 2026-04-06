@@ -7,6 +7,7 @@ import PortfolioSection from "@/components/sections/portfolio";
 import ServicesSection from "@/components/sections/services";
 import PricingSection from "@/components/sections/pricing";
 import ContactSection from "@/components/sections/contact";
+import AiRecipeSection from "@/components/sections/ai-recipe";
 import CoupangBanner from "@/components/CoupangBanner";
 import VibersBanner from "@/components/VibersBanner";
 
@@ -30,6 +31,7 @@ export default function HomePage() {
       <PortfolioSection />
       <ServicesSection />
       <PricingSection />
+      <AiRecipeSection />
       <ContactSection />
 
       {/* 푸터 */}

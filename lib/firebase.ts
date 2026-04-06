@@ -3,6 +3,7 @@ import {
   getAuth,
   GoogleAuthProvider,
 } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,3 +21,4 @@ const app = (typeof window !== 'undefined' || process.env.NEXT_PUBLIC_FIREBASE_A
 
 export const auth = app ? getAuth(app) : null;
 export const googleProvider = app ? new GoogleAuthProvider() : null;
+export const storage = app ? getStorage(app) : null;

@@ -76,52 +76,45 @@ export default function AdminDashboard() {
           setDiscovery(siteInfo);
           setIsApiLive(apiLive);
         } else {
-          // Global: Fetch real projects & Events from DB
-          const [projectsRes, eventsRes] = await Promise.all([
-            fetch('/api/admin/projects'),
-            fetch('/api/admin/events')
-          ]);
-          
-          const projectsResult = await projectsRes.json();
-          const eventsResult = await eventsRes.json();
+          // Global: Fetch aggregated data from all projects
+          const aggRes = await fetch('/api/admin/aggregate');
+          const aggData = await aggRes.json();
 
-          if (projectsResult.success) {
-            setAllProjects(projectsResult.data);
-            setSummary({
-              mau: "45,231", 
-              pv: "128,492",
-              bounceRate: "42.3%",
-              revenue: "₩ 12.4M"
-            });
-          }
+          setAllProjects(
+            (aggData.projects ?? []).map((p: any) => ({
+              slug: p.projectId,
+              name: p.projectName,
+              status: p.health,
+              version: '-',
+              traffic: p.stats.mau > 0 ? `${p.stats.mau.toLocaleString()} MAU` : '-',
+              error: p.health === 'error' ? 1 : 0,
+            }))
+          );
 
-          if (eventsResult.success) {
-            setLogs(eventsResult.data);
-            
-            // Calculate activity trends from real events
-            const hourAggregates: any = {};
-            eventsResult.data.forEach((log: any) => {
-              const hour = log.time.includes('분') ? '최근' : log.time;
-              hourAggregates[hour] = (hourAggregates[hour] || 0) + 1;
-            });
-            
-            const trendData = Object.keys(hourAggregates).map(key => ({
-              name: key,
-              activity: hourAggregates[key]
-            })).reverse();
-            
-            setTrends(trendData.length > 0 ? trendData : [
-              { name: '08:00', activity: 4 },
-              { name: '10:00', activity: 7 },
-              { name: '12:00', activity: 5 }
-            ]);
+          const totals = aggData.totals ?? {};
+          setSummary({
+            mau: totals.mau?.toLocaleString() ?? "0",
+            pv: totals.contentCount?.toLocaleString() ?? "0",
+            bounceRate: `${aggData.health?.healthy ?? 0} / ${aggData.health?.total ?? 0}`,
+            revenue: `+${totals.recentSignups ?? 0}명 (7일)`,
+          });
 
-            // New events badge
-            setNotifications(eventsResult.data.filter((l: any) => l.time === '방금 전').length);
-          } else {
-            setLogs([{ id: 'g1', title: '시스템 - 이벤트 수신 대기 중', time: '방금 전', type: 'info' }]);
-            setTrends([{ name: '대기', activity: 0 }]);
-          }
+          // Recent activity log from all projects
+          const allActivity = (aggData.projects ?? []).flatMap((p: any) =>
+            (p.recentActivity ?? []).map((a: any) => ({
+              id: a.id,
+              title: `[${p.projectName}] ${a.label}`,
+              time: new Date(a.timestamp).toLocaleString('ko-KR'),
+              type: a.type === 'signup' ? 'info' : 'info',
+            }))
+          ).slice(0, 10);
+
+          setLogs(allActivity.length > 0 ? allActivity : [{ id: 'idle', title: '최근 활동 없음', time: '-', type: 'info' }]);
+          setTrends(
+            (aggData.projects ?? [])
+              .filter((p: any) => p.stats.mau > 0)
+              .map((p: any) => ({ name: p.projectName, activity: p.stats.mau }))
+          );
 
           setDiscovery(null);
           setIsApiLive(true);
@@ -177,27 +170,23 @@ export default function AdminDashboard() {
           icon={<Server className={`w-5 h-5 ${isGlobal ? 'text-blue-500' : (isApiLive ? 'text-emerald-500' : 'text-red-500')}`} />} 
           subtitle={isGlobal ? `${30 - allProjects.length}개 사이트 비활성 (보류/종료)` : `Uptime: ${isApiLive ? '99.9%' : '0%'}`}
         />
-        <StatCard 
-          title="월간 방문 (MAU)" 
-          value={summary?.mau || "0"} 
-          trend="12.5%" 
-          trendUp={true} 
-          icon={<AreaChart className="w-5 h-5 text-indigo-500" />} 
+        <StatCard
+          title={isGlobal ? "전체 MAU" : "월간 방문 (MAU)"}
+          value={summary?.mau || "0"}
+          trend="12.5%"
+          trendUp={true}
+          icon={<AreaChart className="w-5 h-5 text-indigo-500" />}
         />
-        <StatCard 
-          title="이전 대비 상태" 
-          value={summary?.bounceRate || "0%"} 
-          trend="2.1% 감소" 
-          trendUp={false} 
-          icon={<AlertTriangle className="w-5 h-5 text-amber-500" />} 
-          subtitle="이탈률 기준"
+        <StatCard
+          title={isGlobal ? "정상 / 전체 앱" : "이탈률"}
+          value={summary?.bounceRate || "0%"}
+          icon={<AlertTriangle className="w-5 h-5 text-amber-500" />}
+          subtitle={isGlobal ? "healthy / total" : "이탈률 기준"}
         />
-        <StatCard 
-          title="매출 현황" 
-          value={summary?.revenue || "₩ 0"} 
-          trend="5.2%" 
-          trendUp={true} 
-          icon={<Link2 className="w-5 h-5 text-purple-500" />} 
+        <StatCard
+          title={isGlobal ? "최근 가입 (7일)" : "매출 현황"}
+          value={summary?.revenue || "0"}
+          icon={<Link2 className="w-5 h-5 text-purple-500" />}
         />
       </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Search, Save, Globe, Info, Loader2, CheckCircle2 } from 'lucide-react';
+import { Search, Save, Globe, Info, Loader2, CheckCircle2, ImageIcon } from 'lucide-react';
 import { useProject } from '@/context/ProjectContext';
 import { getAdapterForProject, AdminSeo } from '@/lib/admin/api';
+import IconManager from '@/components/admin/IconManager';
 
 export default function SeoPage() {
   const { currentProject } = useProject();
@@ -149,6 +150,18 @@ export default function SeoPage() {
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* ── 아이콘 & 파비콘 섹션 ── */}
+      <div className="bg-[var(--admin-card)] rounded-xl border border-[var(--admin-border)] p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-[var(--admin-text)] mb-1 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-violet-500" /> 파비콘 & 앱 아이콘
+        </h3>
+        <p className="text-sm text-[var(--admin-text-muted)] mb-5">
+          브라우저 탭, iOS/Android 홈화면, SNS 공유 시 표시되는 아이콘을 관리합니다.
+          업로드한 이미지는 자동으로 최적 사이즈로 리사이즈됩니다.
+        </p>
+        <IconManager />
       </div>
     </div>
   );

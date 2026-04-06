@@ -1,0 +1,20 @@
+# Vibers (계발자들)
+
+> 국내 스타트업 프로덕트를 빠르게 런칭하는 풀스택 서비스 팀의 통합 허브
+
+## 주요 서비스
+- AI Recipe: AI 기반 요리 레시피 생성 및 구독 서비스
+- FanEasy: 팬사이트 빌더
+- WhyMove: 이사 정보 커뮤니티
+- Semophone: 구인구직 플랫폼
+- 누수체크: 누수 점검 전문 서비스
+- PremiumPage: 전자카탈로그 에이전시
+
+## 대상 사용자
+한국 스타트업, 소상공인, 콘텐츠 크리에이터
+
+## 기술 스택
+Next.js, TypeScript, Turborepo, Rails, Firebase, PostgreSQL
+
+## 운영사
+계발자들 (Vibers) — vibers.co.kr

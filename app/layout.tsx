@@ -12,9 +12,17 @@ export const metadata: Metadata = {
     "AI와 바이브코딩으로 새로운 방식의 프로젝트를 만드는 빌더 집단. 바이버스, 팬이지, 누수체크 등 다양한 프로젝트를 아카이빙합니다.",
   metadataBase: new URL("https://vibers.co.kr"),
   openGraph: {
+    title: "계발자들 | 우리는 만든다",
+    description: "AI와 바이브코딩으로 새로운 방식의 프로젝트를 만드는 빌더 집단. 바이버스, 팬이지, 누수체크 등 다양한 프로젝트를 아카이빙합니다.",
+    url: "https://vibers.co.kr",
     siteName: "계발자들",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "계발자들" }],
     locale: "ko_KR",
     type: "website",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
