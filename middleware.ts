@@ -5,6 +5,15 @@ export function middleware(req: NextRequest) {
   const hostname = req.headers.get("host") || "";
   const url = req.nextUrl;
 
+  // admin.vibers.co.kr → /admin 라우트로 redirect
+  if (hostname === "admin.vibers.co.kr") {
+    if (!url.pathname.startsWith("/admin") && !url.pathname.startsWith("/api") && !url.pathname.startsWith("/login")) {
+      url.pathname = "/admin";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
   // app.vibers.co.kr → /app 라우트로 rewrite
   if (
     hostname === "app.vibers.co.kr" ||
