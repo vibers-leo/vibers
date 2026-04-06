@@ -1,21 +1,18 @@
 import { Pool } from 'pg';
 
-let pool: Pool | null = null;
+const globalForPg = globalThis as unknown as { pgPool: Pool };
 
-export const getDbPool = () => {
-  if (!pool) {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:vibers123@101.202.34.11:5432/vibers_admin';
-    pool = new Pool({
-      connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      connectionTimeoutMillis: 5000, // 5초 타임아웃
-      query_timeout: 5000,
-    });
-  }
-  return pool;
-};
+export const pool =
+  globalForPg.pgPool ??
+  new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  });
 
-export const query = (text: string, params?: any[]) => {
-  const dbPool = getDbPool();
-  return dbPool.query(text, params);
-};
+if (process.env.NODE_ENV !== "production") globalForPg.pgPool = pool;
+
+// 하위 호환
+export const getDbPool = () => pool;
+export const query = (text: string, params?: any[]) => pool.query(text, params);
