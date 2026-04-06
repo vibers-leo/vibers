@@ -8,14 +8,7 @@ import "./admin.css";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
 import { ProjectProvider } from "@/context/ProjectContext";
-
-const SUPER_ADMINS = [
-  'designd@designd.co.kr',
-  'juuuno@naver.com',
-  'juuuno1116@gmail.com',
-  'duscontactus@gmail.com',
-  'designdlab@designdlab.co.kr',
-];
+import { canAccessAdmin } from "@/lib/permissions";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -25,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!loading) {
       if (!user) {
         router.push('/login');
-      } else if (!SUPER_ADMINS.includes(user.email)) {
+      } else if (!canAccessAdmin(user.role)) {
         router.push('/login?error=unauthorized');
       }
     }
@@ -39,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!user || !SUPER_ADMINS.includes(user.email)) return null;
+  if (!user || !canAccessAdmin(user.role)) return null;
 
   return (
     <ProjectProvider>
